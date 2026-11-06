@@ -267,7 +267,7 @@ function updFab(bump){const n=cart().length;const f=$("fab");$("fabc").textConte
 const MORD=["Épaules","Poitrine","Longueur","Manches","Largeur bas","Hanches"];
 function mtxt(x,short){const m=x.m||{};const k=MORD.filter(k=>m[k]);if(!k.length)return "";return k.map(k=>(short?k.slice(0,4)+".":k)+" "+m[k]).join(" · ")+" cm"}
 function soldHTML(x,big){const v=x.sp||x.px;const w=x.sv=="catalogue"?"💜 Vendu via le catalogue":x.sv=="vinted"?"Vendu sur Vinted":"Vendu";return `<div class="sold-at${big?" big":""}"><span>✓ ${w}</span>${v?`<b>${eur(v)}</b>`:""}${x.sold?`<small>le ${new Date(x.sold+"T12:00:00").toLocaleDateString("fr-BE",{day:"numeric",month:"long"})}</small>`:""}</div>`}
-function priceHTML(x,big){if(isSold(x))return soldHTML(x,big);if(!x.px)return "";if(x.pn)return `<div class="pr${big?" big":""}"><s class="pn" title="Prix neuf indicatif en magasin">Neuf ${eur(x.pn)}</s><b>${eur(x.px)}</b><em>−${Math.round((1-x.px/x.pn)*100)} %</em></div><div class="pvl${big?" big":""}">Sur Vinted : <s>${eur(x.pv)}</s></div>`;return `<div class="pr${big?" big":""}"><b>${eur(x.px)}</b><s>${eur(x.pv)}</s><em>−20 %</em></div>`}
+function priceHTML(x,big){if(isSold(x))return soldHTML(x,big);if(!x.px)return "";if(x.pn)return `<div class="pr${big?" big":""}"><s class="pn" title="Prix neuf indicatif en magasin">Neuf ${eur(x.pn)}</s><b>${eur(x.px)}</b></div><div class="pvl${big?" big":""}">Sur Vinted : <s>${eur(x.pv)}</s></div>`;return `<div class="pr${big?" big":""}"><b>${eur(x.px)}</b><s>${eur(x.pv)}</s><em>−20 %</em></div>`}
 function initTop(){
  const av=D.filter(avail);
  const nNew=av.filter(isNew).length;
