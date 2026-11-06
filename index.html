@@ -215,7 +215,7 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 <p>J'habite à Liège et je chine des vêtements de seconde main : des pièces de marque et vintage que je sélectionne une par une, des doudounes The North Face aux pulls Ralph Lauren, Lacoste ou CHAPS.</p>
 <p><b>air2frip, c'est mon projet.</b> Aujourd'hui je le fais à côté, et mon objectif est d'en vivre à temps plein d'ici quelques mois. Chaque pièce que tu prends ici me soutient directement dans cette aventure, et ça compte énormément pour moi.</p>
 <p>En prime, tu fais un beau geste : un vêtement qui vit une deuxième vie, c'est un vêtement neuf en moins à produire 🌱</p>
-<p class="sig">Merci d'être là, Romain</p><a class="wa1" href="https://wa.me/32493307503" target="_blank" rel="noopener">💬 M'écrire sur WhatsApp · +32 493 30 75 03</a>
+<p class="sig">Merci d'être là, Romain</p><a class="wa1" href="https://wa.me/32493307503">💬 M'écrire sur WhatsApp · +32 493 30 75 03</a>
 </div>
 </section>
 <div class="how"><div><b>1</b><span>Touche le ♡ des pièces qui te plaisent : elles vont dans ton panier 🛍️</span></div><div><b>2</b><span>Ouvre ton panier et envoie-le moi en un clic sur WhatsApp</span></div><div><b>3</b><span>Je te confirme la dispo et je t'envoie ta facture, puis livraison ou retrait</span></div></div>
@@ -381,13 +381,14 @@ function openList(){
  <label>Pays<input name="pays" autocomplete="country-name" value="${esc(CL.pays||"Belgique")}"></label>
  <label>Un mot pour moi ?<input name="note" placeholder="Disponibilités pour le retrait, question…" value="${esc(CL.note||"")}"></label>
  <div class="cfn">Tes coordonnées restent dans ton navigateur : elles sont seulement ajoutées au message que tu m'envoies.</div><div class="cfe" id="cfe"></div></form>
- <a class="btn wa" id="wa" target="_blank" rel="noopener" href="#">💬 Envoyer mon panier sur WhatsApp</a>
+ <a class="btn wa" id="wa" href="#">💬 Envoyer mon panier sur WhatsApp</a>
+ <a class="btn s" id="sms" href="#">✉️ Pas WhatsApp ? Envoyer par SMS</a>
  <button class="btn s" id="cp">📋 Copier le message</button>
  <textarea id="tx" readonly></textarea><button class="clr" id="clr">Vider le panier</button>
  <div class="note">WhatsApp s'ouvre directement sur ma conversation avec ton panier déjà écrit : tu n'as plus qu'à appuyer sur Envoyer. Tu peux aussi copier le message et me l'envoyer par SMS au +32 493 30 75 03.</div></div>`;
- const upd=()=>{$("tx").value=msg();$("wa").href="https://wa.me/32493307503?text="+encodeURIComponent(msg());const m=missing();$("wa").classList.toggle("off",m.length>0);$("cfe").textContent=m.length?"À compléter : "+m.join(", "):""};upd();
+ const upd=()=>{$("tx").value=msg();$("wa").href="https://wa.me/32493307503?text="+encodeURIComponent(msg());$("sms").href="sms:+32493307503"+(/iPhone|iPad|iPod/.test(navigator.userAgent)?"&":"?")+"body="+encodeURIComponent(msg());const m=missing();$("wa").classList.toggle("off",m.length>0);$("sms").classList.toggle("off",m.length>0);$("wa").textContent=m.length?"✏️ Remplis tes coordonnées pour envoyer":"💬 Envoyer mon panier sur WhatsApp";$("cfe").textContent=m.length?"À compléter : "+m.join(", "):""};upd();
  $("cf").addEventListener("input",e=>{if(e.target.name){CL[e.target.name]=e.target.value;saveCL();upd()}});
- $("wa").onclick=e=>{const m=missing();if(m.length){e.preventDefault();toast("Complète d'abord : "+m.join(", "));const f=$("cf").querySelector("input:invalid")||$("cf");f.focus&&f.focus();}};
+ const chk=e=>{const m=missing();if(m.length){e.preventDefault();toast("Complète d'abord : "+m.join(", "));const k={"livraison ou retrait":null,"prénom":"prenom",nom:"nom","téléphone":"tel",adresse:"rue","code postal":"cp",ville:"ville"}[m[0]];const f=k?$("cf").querySelector(`[name=${k}]`):box.querySelector(".opt");f&&f.scrollIntoView({behavior:"smooth",block:"center"});f&&f.focus&&f.focus();}};$("wa").onclick=chk;$("sms").onclick=chk;
  box.querySelector(".x").onclick=close;
  box.querySelectorAll(".opt button").forEach(b=>b.onclick=()=>{mode=b.dataset.m;save();const y=box.scrollTop;openList();box.scrollTop=y});
  box.querySelectorAll(".li button").forEach(b=>b.onclick=()=>{toggle(b.dataset.r);render();cart().length?openList():close()});
