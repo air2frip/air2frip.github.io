@@ -402,7 +402,7 @@ function openList(){
 $("fab").onclick=openList;$("cartb").onclick=()=>{if(cart().length)openList();else toast("Ton panier est vide : touche le ♡ d'une pièce")};
 function fromHash(){const h=location.hash.slice(1);const x=D.find(y=>y.r==h);if(x)openItem(x)}
 function start(j){META=j;ALL=j.items||[];REV=j.reviews||[];
- D=ALL.filter(x=>!isSold(x)||x.hist||days(x.sold)<=7);{const ch=D.filter(x=>avail(x)&&x.k=="Chemises");const sb=$("selch");if(ch.length&&sb){sb.hidden=false;$("selt").textContent=`${ch.length} chemises oxford, vichy et rayées · dès ${eur(Math.min(...ch.map(x=>x.px)))}`;sb.onclick=()=>{st.k="Chemises";render(true);const y=$("pieces").getBoundingClientRect().top+scrollY-8;scrollTo({top:y,behavior:"smooth"})}}}
+ {const td=new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Brussels"});ALL=ALL.filter(x=>!x.pub||x.pub<=td);}D=ALL.filter(x=>!isSold(x)||x.hist||days(x.sold)<=7);{const ch=D.filter(x=>avail(x)&&x.k=="Chemises");const sb=$("selch");if(ch.length&&sb){sb.hidden=false;$("selt").textContent=`${ch.length} chemises oxford, vichy et rayées · dès ${eur(Math.min(...ch.map(x=>x.px)))}`;sb.onclick=()=>{st.k="Chemises";render(true);const y=$("pieces").getBoundingClientRect().top+scrollY-8;scrollTo({top:y,behavior:"smooth"})}}}
  sel=sel.filter(r=>D.some(x=>x.r==r&&avail(x)));save();
  initTop();render();updFab(false);addEventListener("hashchange",fromHash);fromHash()}
 fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(start).catch(()=>{const f=window.__FALLBACK__;if(f)start(f);else $("grid").innerHTML='<div class="empty"><b>⚠️</b>Le catalogue n\'a pas pu se charger. Recharge la page.</div>'});
