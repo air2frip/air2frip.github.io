@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>air2frip — Ton avis</title>
+<meta name="description" content="Tu as acheté une pièce air2frip ? Dis-nous ce que tu en penses en 30 secondes.">
+<meta property="og:title" content="air2frip — Laisse ton avis">
+<meta property="og:description" content="30 secondes pour dire ce que tu penses de ta pièce air2frip.">
+<meta property="og:image" content="https://air2frip.github.io/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e0d14;--bg:#f5f4f0;--card:#fff;--mute:#6d6c76;--line:#e7e5df;--acc:#5b50e8;--acc-d:#4338d4;--acc2:#eeecff;--gold:#ffb21e}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:8px}
+.hero{position:relative;background:#000;color:#fff;overflow:hidden;padding:34px 20px 58px;text-align:center;isolation:isolate}
+.glow{position:absolute;width:520px;height:520px;border-radius:50%;filter:blur(90px);opacity:.55;z-index:-1;animation:float 14s ease-in-out infinite}
+.g1{background:#5b50e8;left:-180px;top:-240px}.g2{background:#2b1fa8;right:-200px;bottom:-300px;animation-delay:-7s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,30px) scale(1.12)}}
+.hero img{width:min(210px,56vw);display:block;margin:0 auto}
+.hero h1{font-family:Fredoka,sans-serif;font-weight:500;font-size:clamp(28px,6vw,40px);margin:6px 0 6px}
+.hero p{margin:0 auto;max-width:460px;color:#cfcde0;font-size:15.5px;line-height:1.55}
+.wave{position:absolute;left:0;right:0;bottom:-1px;height:36px;background:var(--bg);border-radius:50% 50% 0 0/100% 100% 0 0}
+main{max-width:620px;margin:-8px auto 0;padding:0 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin-bottom:14px;box-shadow:0 10px 36px rgba(20,10,80,.06)}
+.step{display:flex;align-items:center;gap:10px;margin:0 0 4px}
+.step b{width:30px;height:30px;border-radius:10px;background:var(--acc2);color:var(--acc);display:grid;place-items:center;font-family:Fredoka,sans-serif;font-size:16px;flex:none}
+.step h2{font-family:Fredoka,sans-serif;font-weight:500;font-size:21px;margin:0}
+.hint{color:var(--mute);font-size:13.5px;margin:2px 0 14px 40px}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.it{position:relative;border:2px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;padding:0;cursor:pointer;text-align:left;transition:transform .15s,border-color .15s}
+.it:hover{transform:translateY(-2px)}
+.it img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#eee}
+.it span{display:block;padding:7px 9px 9px;font-size:12.5px;line-height:1.3}
+.it span b{display:block;font-size:13px}
+.it[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 4px var(--acc2)}
+.it[aria-pressed="true"]::after{content:"✓";position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:700}
+.other{margin-top:10px;width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:15px}
+.stars{display:flex;gap:6px;justify-content:center;margin:4px 0 6px}
+.star{border:0;background:none;font-size:46px;line-height:1;cursor:pointer;color:#ddd9cf;transition:transform .15s,color .15s;padding:2px}
+.star.on{color:var(--gold)}.star:hover{transform:scale(1.15)}
+.slabel{text-align:center;font-weight:600;min-height:22px;color:var(--acc)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center}
+.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font-size:13.5px;cursor:pointer;transition:all .15s}
+.tag[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+label.f{display:block;font-weight:600;font-size:14px;margin:12px 0 6px}
+label.f i{font-weight:400;color:var(--mute);font-style:normal}
+input.t,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:15px;background:#fff;color:var(--ink)}
+input.t:focus,textarea:focus,.other:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 4px var(--acc2)}
+textarea{min-height:110px;resize:vertical;line-height:1.5}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:480px){.two{grid-template-columns:1fr}}
+.ok{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#2c2b33;margin-top:14px;line-height:1.45}
+.ok input{width:20px;height:20px;accent-color:var(--acc);flex:none;margin-top:1px}
+.send{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;background:var(--acc);color:#fff;border:0;border-radius:999px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 10px 26px rgba(91,80,232,.4);transition:transform .2s,background .2s}
+.send:hover{transform:translateY(-2px);background:var(--acc-d)}
+.send[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.err{color:#c2453a;font-size:13.5px;text-align:center;min-height:18px;margin-top:8px}
+.hp{position:absolute;left:-9999px}
+.done{text-align:center;padding:34px 22px}
+.done .big{font-size:64px;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.done h2{font-family:Fredoka,sans-serif;font-weight:500;font-size:28px;margin:8px 0}
+.done p{color:#2c2b33;line-height:1.55;margin:0 0 16px}
+.btn2{display:inline-flex;gap:8px;align-items:center;text-decoration:none;font-weight:600;border-radius:999px;padding:12px 18px;margin:4px}
+.btn2.cat{background:var(--ink);color:#fff}.btn2.wa{background:#25d366;color:#fff}
+.foot{text-align:center;color:var(--mute);font-size:12.5px;margin-top:18px;line-height:1.5}
+.foot a{color:var(--acc)}
+.conf{position:fixed;inset:0;pointer-events:none;z-index:9}
+@media (prefers-reduced-motion:reduce){.glow,.done .big{animation:none}}
+</style></head>
+<body>
+<header class="hero"><div class="glow g1"></div><div class="glow g2"></div>
+  <img src="img/logo.png" alt="air2frip">
+  <h1>Alors, ta pièce ?</h1>
+  <p>Merci d'avoir acheté chez air2frip ! Dis-moi en 30 secondes ce que tu en penses : ça m'aide énormément à faire grandir la boutique.</p>
+  <div class="wave"></div>
+</header>
+
+<main id="app">
+  <form id="f" novalidate>
+    <section class="card">
+      <div class="step"><b>1</b><h2>Qu'est-ce que tu as acheté ?</h2></div>
+      <p class="hint">Touche ta ou tes pièces. Tu ne la vois pas ? Écris-la juste en dessous.</p>
+      <div class="items" id="items"></div>
+      <label for="autre" class="hp">Autre pièce</label>
+      <input class="other" id="autre" name="autre" placeholder="Autre pièce (ex. doudoune The North Face noire)" autocomplete="off">
+    </section>
+
+    <section class="card">
+      <div class="step"><b>2</b><h2>Ta note</h2></div>
+      <p class="hint">De 1 à 5 étoiles.</p>
+      <div class="stars" role="radiogroup" aria-label="Note de 1 à 5" id="stars"></div>
+      <div class="slabel" id="slabel" aria-live="polite"></div>
+      <div class="tags" id="tags"></div>
+    </section>
+
+    <section class="card">
+      <div class="step"><b>3</b><h2>Ton avis</h2></div>
+      <label class="f" for="com">En quelques mots <i>(facultatif)</i></label>
+      <textarea id="com" name="com" maxlength="800" placeholder="La qualité, la taille, le retrait ou la livraison, ce qui t'a plu…"></textarea>
+      <div class="two">
+        <div><label class="f" for="nom">Ton prénom</label><input class="t" id="nom" name="nom" maxlength="40" autocomplete="given-name" required></div>
+        <div><label class="f" for="ville">Ta ville <i>(facultatif)</i></label><input class="t" id="ville" name="ville" maxlength="40" autocomplete="address-level2"></div>
+      </div>
+      <label class="ok"><input type="checkbox" id="pub" checked> J'accepte que mon avis (prénom, ville et note) soit affiché sur le catalogue air2frip.</label>
+      <input class="hp" type="text" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="send" id="send" type="submit">Envoyer mon avis</button>
+      <div class="err" id="err" role="alert"></div>
+    </section>
+  </form>
+  <p class="foot">Ton avis est envoyé directement à Romain (air2frip). Il n'est jamais revendu ni partagé.<br><a href="./">← Retour au catalogue</a></p>
+</main>
+
+<canvas class="conf" id="conf" hidden></canvas>
+<script>
+const DEST="https://formsubmit.co/ajax/romain.onkelinx05@gmail.com";
+const LAB=["","Déçu","Bof","Correct","Très bien","Génial !"];
+const TAGS=["Pièce conforme aux photos","Très bon état","Bonne taille","Retrait facile","Livraison rapide","Bon rapport qualité-prix","Je recommande"];
+let note=0, chosen=new Set(), tags=new Set(), items=[];
+const $=s=>document.querySelector(s);
+const esc=t=>String(t||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pre=new URLSearchParams(location.search).get("ref");
+
+$("#stars").innerHTML=[1,2,3,4,5].map(n=>`<button type="button" class="star" role="radio" aria-checked="false" aria-label="${n} étoile${n>1?"s":""}" data-n="${n}">★</button>`).join("");
+function setNote(n){note=n;document.querySelectorAll(".star").forEach(s=>{const k=+s.dataset.n;s.classList.toggle("on",k<=n);s.setAttribute("aria-checked",k===n)});$("#slabel").textContent=LAB[n]||"";}
+$("#stars").addEventListener("click",e=>{const b=e.target.closest(".star");if(b)setNote(+b.dataset.n)});
+$("#stars").addEventListener("mouseover",e=>{const b=e.target.closest(".star");if(!b)return;const k=+b.dataset.n;document.querySelectorAll(".star").forEach(s=>s.classList.toggle("on",+s.dataset.n<=k))});
+$("#stars").addEventListener("mouseleave",()=>setNote(note));
+$("#tags").innerHTML=TAGS.map(t=>`<button type="button" class="tag" aria-pressed="false">${t}</button>`).join("");
+$("#tags").addEventListener("click",e=>{const b=e.target.closest(".tag");if(!b)return;const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);on?tags.add(b.textContent):tags.delete(b.textContent)});
+
+function renderItems(){
+  if(!items.length){$("#items").innerHTML="";$(".hint").textContent="Écris le nom de ta pièce juste en dessous.";return;}
+  $("#items").innerHTML=items.map(x=>`<button type="button" class="it" data-r="${esc(x.r)}" aria-pressed="${chosen.has(x.r)}">
+    <img src="${esc((x.p||[])[0]||"img/logo.png")}" alt="" loading="lazy"><span><b>${esc(x.b)}</b>${esc(x.n)} · ${esc(x.s||"")}</span></button>`).join("");
+}
+$("#items").addEventListener("click",e=>{const b=e.target.closest(".it");if(!b)return;const r=b.dataset.r;chosen.has(r)?chosen.delete(r):chosen.add(r);b.setAttribute("aria-pressed",chosen.has(r))});
+
+fetch("data.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{
+  const all=(d.items||[]);
+  const sold=all.filter(x=>x.st==="vendu"&&!x.hist&&x.sv==="catalogue").sort((a,b)=>(b.sold||"").localeCompare(a.sold||""));
+  items=sold.slice(0,12);
+  if(pre){ const hit=all.find(x=>x.r===pre.toUpperCase()); if(hit){ if(!items.includes(hit)) items.unshift(hit); chosen.add(hit.r);} }
+  renderItems();
+}).catch(()=>renderItems());
+
+$("#f").addEventListener("submit",async e=>{
+  e.preventDefault(); $("#err").textContent="";
+  if($("#hp").value) return;
+  const autre=$("#autre").value.trim(), nom=$("#nom").value.trim();
+  if(!chosen.size&&!autre){$("#err").textContent="Choisis ta pièce ou écris son nom à l'étape 1.";return;}
+  if(!note){$("#err").textContent="Donne une note de 1 à 5 étoiles à l'étape 2.";$("#stars").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!nom){$("#err").textContent="Écris ton prénom.";$("#nom").focus();return;}
+  const pieces=[...chosen].map(r=>{const x=items.find(i=>i.r===r);return x?`${x.r} – ${x.b} ${x.n} (${x.s||""})`:r;});
+  if(autre) pieces.push("Autre : "+autre);
+  const body={_subject:`Avis air2frip – ${nom} – ${note}/5`,_template:"table",_captcha:"false",
+    Source:"Avis catalogue air2frip",Note:`${note}/5 (${LAB[note]})`,Pieces:pieces.join(" ; "),Points_forts:[...tags].join(" ; ")||"—",
+    Commentaire:$("#com").value.trim()||"—",Prenom:nom,Ville:$("#ville").value.trim()||"—",Publication:$("#pub").checked?"oui":"non",
+    Date:new Date().toLocaleString("fr-BE")};
+  const b=$("#send"); b.disabled=true; b.textContent="Envoi…";
+  try{
+    const r=await fetch(DEST,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(body)});
+    if(!r.ok) throw new Error(r.status);
+    done(nom);
+  }catch(_){ b.disabled=false; b.textContent="Envoyer mon avis"; $("#err").textContent="L'envoi n'a pas marché. Vérifie ta connexion et réessaie, ou envoie ton avis à Romain sur WhatsApp."; }
+});
+function done(nom){
+  $("#app").innerHTML=`<section class="card done"><div class="big">🙌</div><h2>Merci ${esc(nom)} !</h2>
+    <p>Ton avis est bien arrivé. Il aide vraiment air2frip à grandir. À très vite pour une nouvelle pièce !</p>
+    <a class="btn2 cat" href="./">Voir les nouveautés du catalogue</a>
+    <a class="btn2 wa" href="https://wa.me/32493307503?text=${encodeURIComponent("Salut Romain ! Je viens de laisser mon avis sur air2frip 🙂")}">Écrire à Romain</a></section>`;
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c=$("#conf"); c.hidden=false; const x=c.getContext("2d"); c.width=innerWidth; c.height=innerHeight;
+  const P=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,v:2+Math.random()*3,a:Math.random()*6,s:4+Math.random()*5,col:["#5b50e8","#ffb21e","#25d366","#9d95ff","#fff"][Math.floor(Math.random()*5)]}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.a+t/20);x.fillStyle=p.col;x.fillRect(p.x,p.y,p.s,p.s*.6)});t++;if(t<200)requestAnimationFrame(f);else c.hidden=true;})();
+}
+</script>
+</body></html>
