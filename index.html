@@ -194,7 +194,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
 footer{text-align:center;color:var(--mute);font-size:13px;padding:10px 16px 50px;line-height:1.6}
 footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
-</style></head><body>
+.pay{margin:16px 0 10px;padding:14px;border:1px solid #e6dff2;border-radius:14px;background:#faf8fd}.payw{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.qr{width:150px;height:150px;flex:none;background:#fff;border-radius:10px;display:grid;place-items:center}.qr svg{width:100%;height:100%}</style></head><body>
 <header class="hero">
 <div class="glow g1"></div><div class="glow g2"></div>
 <img class="logo" src="img/logo.png" alt="air2frip">
@@ -358,6 +358,11 @@ function openItem(x){
  openOv();
 }
 function total(L){return L.reduce((a,x)=>a+(x.px||0),0)}
+const PAY={iban:"",bic:"",nom:"Romain Onkelinx"};
+function comm(){const L=cart();return ("air2frip "+L.map(x=>x.r).join(" ")+" "+(CL.nom||"")).trim().slice(0,140)}
+function epc(amount){return ["BCD","002","1","SCT",PAY.bic,PAY.nom,PAY.iban.replace(/\s/g,""),"EUR"+amount.toFixed(2),"","",comm()].join("\n")}
+function loadQR(cb){if(window.qrcode)return cb();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js";sc.onload=cb;sc.onerror=()=>{const q=$("qr");if(q)q.textContent="QR indisponible : utilise l'IBAN ci-dessous."};document.head.appendChild(sc)}
+function drawQR(){const q=$("qr");if(!q||!PAY.iban)return;loadQR(()=>{if(!window.qrcode)return;const T=total(cart());const g=qrcode(0,"M");g.addData(epc(T));g.make();q.innerHTML=g.createSvgTag({cellSize:4,margin:2,scalable:true})})}
 let CL={};try{CL=JSON.parse(localStorage.getItem("a2f_client")||"{}")}catch(e){}
 if(!CL.pays)CL.pays="Belgique";
 function saveCL(){try{localStorage.setItem("a2f_client",JSON.stringify(CL))}catch(e){}}
@@ -366,7 +371,7 @@ function missing(){const need=["prenom","nom","tel"].concat(ADR()?["rue","cp","v
 function msg(){const L=cart();const rec=mode=="livraison à domicile"?"livraison à domicile (offerte)":mode=="envoi"?"envoi par colis"+(CL.transp?" ("+CL.transp+")":"")+", frais d'envoi à ma charge":mode=="retrait"?"je viens chercher":"à préciser";
  const c=[`Nom : ${(CL.prenom||"")+" "+(CL.nom||"")}`.trim(),`Téléphone : ${CL.tel||""}`];if(CL.email)c.push(`E-mail : ${CL.email}`);
  if(CL.rue||CL.cp||CL.ville)c.push(`Adresse : ${[CL.rue,[CL.cp,CL.ville].filter(Boolean).join(" "),CL.pays].filter(Boolean).join(", ")}`);
- return `Salut Romain ! Voici mon panier air2frip (${L.length} article${L.length>1?"s":""}) :\n\n`+L.map((x,i)=>`${i+1}. ${x.r} – ${x.b} ${x.n}, ${x.c}, taille ${x.s} – ${x.px?eur(x.px):"prix à confirmer"}`).join("\n")+`\n\nTotal articles : ${eur(total(L))}\nRéception : ${rec}\n\nMes coordonnées pour la facture :\n${c.join("\n")}`+(CL.note?`\nMessage : ${CL.note}`:"")+"\n\nMerci !"}
+ return `Salut Romain ! Voici mon panier air2frip (${L.length} article${L.length>1?"s":""}) :\n\n`+L.map((x,i)=>`${i+1}. ${x.r} – ${x.b} ${x.n}, ${x.c}, taille ${x.s} – ${x.px?eur(x.px):"prix à confirmer"}`).join("\n")+`\n\nTotal articles : ${eur(total(L))}\nRéception : ${rec}\n\nMes coordonnées pour la facture :\n${c.join("\n")}`+(CL.note?`\nMessage : ${CL.note}`:"")+(PAY.iban?"\nPaiement : virement (QR code du catalogue) dès ta confirmation":"")+"\n\nMerci !"}
 function openList(){
  cur=null;const L=cart();
  if(!L.length){close();return}
@@ -387,6 +392,7 @@ function openList(){
  <a class="btn wa" id="wa" href="#">💬 Envoyer mon panier sur WhatsApp</a>
  <a class="btn s" id="sms" href="#">✉️ Pas WhatsApp ? Envoyer par SMS</a>
  <button class="btn s" id="cp">📋 Copier le message</button>
+ ${PAY.iban?`<div class="pay"><div class="cft">💳 Payer par virement <small>après ma confirmation de disponibilité</small></div><div class="payw"><div id="qr" class="qr">…</div><div class="note" style="margin:0">Scanne ce QR code avec l'appli de ta banque : le montant (${eur(T)}${mode=="envoi"?" + frais d'envoi à part":""}) et la communication sont déjà remplis.<br><b>IBAN</b> ${PAY.iban}<br><b>Bénéficiaire</b> ${PAY.nom}<br><b>Communication</b> ${esc(comm())}</div></div></div>`:""}
  <textarea id="tx" readonly></textarea><button class="clr" id="clr">Vider le panier</button>
  <div class="note">WhatsApp s'ouvre directement sur ma conversation avec ton panier déjà écrit : tu n'as plus qu'à appuyer sur Envoyer. Tu peux aussi copier le message et me l'envoyer par SMS au +32 493 30 75 03.</div></div>`;
  const upd=()=>{$("tx").value=msg();$("wa").href="https://wa.me/32493307503?text="+encodeURIComponent(msg());$("sms").href="sms:+32493307503"+(/iPhone|iPad|iPod/.test(navigator.userAgent)?"&":"?")+"body="+encodeURIComponent(msg());const m=missing();$("wa").classList.toggle("off",m.length>0);$("sms").classList.toggle("off",m.length>0);$("wa").textContent=m.length?"✏️ Remplis tes coordonnées pour envoyer":"💬 Envoyer mon panier sur WhatsApp";$("cfe").textContent=m.length?"À compléter : "+m.join(", "):""};upd();
@@ -397,6 +403,7 @@ function openList(){
  box.querySelectorAll(".li button").forEach(b=>b.onclick=()=>{toggle(b.dataset.r);render();cart().length?openList():close()});
  $("clr").onclick=()=>{sel=[];save();updFab(false);document.querySelectorAll(".heart.on").forEach(h=>h.classList.remove("on"));toast("Panier vidé");close()};
  $("cp").onclick=async()=>{try{await navigator.clipboard.writeText(msg());$("cp").textContent="✓ Message copié"}catch(e){$("tx").select();$("cp").textContent="Sélectionne le texte ci-dessous et copie-le"}};
+ drawQR();
  openOv(true);
 }
 $("fab").onclick=openList;$("cartb").onclick=()=>{if(cart().length)openList();else toast("Ton panier est vide : touche le ♡ d'une pièce")};
