@@ -37,7 +37,7 @@ function spec(){const q=new URLSearchParams(location.search);let s={};const v=q.
  return s}
 function img(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
 function rr(x,X,y,w,h,r){x.beginPath();x.moveTo(X+r,y);x.arcTo(X+w,y,X+w,y+h,r);x.arcTo(X+w,y+h,X,y+h,r);x.arcTo(X,y+h,X,y,r);x.arcTo(X,y,X+w,y,r);x.closePath()}
-function wrap(x,t,maxW,maxL){const w=String(t||"").split(/\s+/);const L=[];let cur="";for(const m of w){const n=cur?cur+" "+m:m;if(x.measureText(n).width>maxW&&cur){L.push(cur);cur=m}else cur=n}if(cur)L.push(cur);
+function wrap(x,t,maxW,maxL){const w=String(t||"").split(/[ \t\n]+/);const L=[];let cur="";for(const m of w){const n=cur?cur+" "+m:m;if(x.measureText(n).width>maxW&&cur){L.push(cur);cur=m}else cur=n}if(cur)L.push(cur);
  if(L.length>maxL){L.length=maxL;let l=L[maxL-1];while(x.measureText(l+"…").width>maxW&&l.length>1)l=l.slice(0,-1);L[maxL-1]=l+"…"}return L}
 function cover(x,i,X,Y,w,h){const s=Math.max(w/i.width,h/i.height),sw=w/s,sh=h/s;x.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,X,Y,w,h)}
 async function drawWide(x,s,T,W,H,M){
