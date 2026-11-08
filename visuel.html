@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Visuel air2frip</title>
+<style>
+html,body{margin:0;height:100%}
+body{display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;overflow:hidden}
+canvas{max-width:100vw;max-height:100vh;width:auto;height:auto;display:block}
+#bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px}
+#bar button,#bar a{font:600 15px system-ui,sans-serif;border:0;border-radius:999px;padding:11px 18px;background:#fff;color:#14213A;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+#msg{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#fff;color:#9C2F2F;padding:8px 14px;border-radius:8px;font-size:14px;display:none}
+.clean #bar{display:none}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Visuel air2frip"></canvas>
+<div id="bar"><button id="dl" type="button">Télécharger l'image</button><a href="./">Catalogue</a></div>
+<div id="msg"></div>
+<script>
+const TH={nuit:{bg:"#14213A",fg:"#F6F1E7",ac:"#E8B04B",mu:"rgba(246,241,231,.72)",card:"#1E2D4A"},
+creme:{bg:"#F4EEE3",fg:"#14213A",ac:"#B3303A",mu:"rgba(20,33,58,.65)",card:"#FFFFFF"},
+rouge:{bg:"#9C2F2F",fg:"#FFFFFF",ac:"#F6D7A7",mu:"rgba(255,255,255,.75)",card:"#7E2424"},
+vert:{bg:"#2F5D50",fg:"#FFFFFF",ac:"#F2C14E",mu:"rgba(255,255,255,.75)",card:"#244A3F"}};
+const FMT={post:[1080,1350],carre:[1080,1080],story:[1080,1920]};
+const SERIF='Georgia,"Times New Roman",serif',SANS='"Helvetica Neue",Helvetica,Arial,sans-serif';
+const eur=v=>(Math.round(v*100)/100).toFixed(Number.isInteger(+v)?0:2).replace(".",",")+" €";
+function spec(){const q=new URLSearchParams(location.search);let s={};const v=q.get("v");
+ if(v){try{s=JSON.parse(decodeURIComponent(escape(atob(v.replace(/-/g,"+").replace(/_/g,"/")))))}catch(e){try{s=JSON.parse(v)}catch(_){}}}
+ for(const k of ["t","st","b","f","th","cta"]) if(q.get(k)) s[k]=q.get(k);
+ if(q.get("r")) s.r=q.get("r").split(",");
+ if(q.get("clean")) document.body.classList.add("clean");
+ return s}
+function img(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+function rr(x,X,y,w,h,r){x.beginPath();x.moveTo(X+r,y);x.arcTo(X+w,y,X+w,y+h,r);x.arcTo(X+w,y+h,X,y+h,r);x.arcTo(X,y+h,X,y,r);x.arcTo(X,y,X+w,y,r);x.closePath()}
+function wrap(x,t,maxW,maxL){const w=String(t||"").split(/\s+/);const L=[];let cur="";for(const m of w){const n=cur?cur+" "+m:m;if(x.measureText(n).width>maxW&&cur){L.push(cur);cur=m}else cur=n}if(cur)L.push(cur);
+ if(L.length>maxL){L.length=maxL;let l=L[maxL-1];while(x.measureText(l+"…").width>maxW&&l.length>1)l=l.slice(0,-1);L[maxL-1]=l+"…"}return L}
+function cover(x,i,X,Y,w,h){const s=Math.max(w/i.width,h/i.height),sw=w/s,sh=h/s;x.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,X,Y,w,h)}
+async function draw(){
+ const s=spec(),T=TH[s.th]||TH.nuit,[W,H]=FMT[s.f]||FMT.post,c=document.getElementById("c"),x=c.getContext("2d");
+ c.width=W;c.height=H;document.body.style.background=T.bg;
+ x.fillStyle=T.bg;x.fillRect(0,0,W,H);
+ let items=[];
+ if(s.r&&s.r.length){try{const d=await fetch("data.json?n="+Date.now(),{cache:"no-store"}).then(r=>r.json());items=s.r.slice(0,4).map(r=>d.items.find(p=>p.r===String(r).trim().toUpperCase())).filter(Boolean)}catch(e){}}
+ const M=64;let y=M;
+ // en-tête
+ x.fillStyle=T.fg;x.font=`800 46px ${SANS}`;x.textBaseline="top";x.fillText("air2frip",M,y);
+ if(s.b){x.font=`800 30px ${SANS}`;const tw=x.measureText(s.b.toUpperCase()).width+44;x.fillStyle=T.ac;rr(x,W-M-tw,y-4,tw,56,28);x.fill();x.fillStyle=T.bg;x.textBaseline="middle";x.fillText(s.b.toUpperCase(),W-M-tw+22,y+24);x.textBaseline="top"}
+ y+=96;
+ // titre
+ const big=s.f==="story"?104:(s.f==="carre"?80:92);
+ if(s.t){x.fillStyle=T.fg;x.font=`700 ${big}px ${SERIF}`;for(const l of wrap(x,s.t,W-2*M,2)){x.fillText(l,M,y);y+=big*1.08}y+=6}
+ if(s.st){x.fillStyle=T.mu;x.font=`500 ${s.f==="carre"?34:38}px ${SANS}`;for(const l of wrap(x,s.st,W-2*M,2)){x.fillText(l,M,y);y+=48}}
+ y+=28;
+ const footH=118, areaH=H-y-footH-M/2;
+ // photos
+ const n=items.length;
+ if(n){
+  const gap=24;let cells;
+  if(n===1)cells=[[M,y,W-2*M,areaH]];
+  else if(n===2)cells=s.f==="story"?[[M,y,W-2*M,(areaH-gap)/2],[M,y+(areaH+gap)/2,W-2*M,(areaH-gap)/2]]:[[M,y,(W-2*M-gap)/2,areaH],[M+(W-2*M+gap)/2,y,(W-2*M-gap)/2,areaH]];
+  else if(n===3){const bw=(W-2*M-gap)*0.58,sw=W-2*M-gap-bw;cells=[[M,y,bw,areaH],[M+bw+gap,y,sw,(areaH-gap)/2],[M+bw+gap,y+(areaH+gap)/2,sw,(areaH-gap)/2]]}
+  else{const cw=(W-2*M-gap)/2,ch=(areaH-gap)/2;cells=[[M,y,cw,ch],[M+cw+gap,y,cw,ch],[M,y+ch+gap,cw,ch],[M+cw+gap,y+ch+gap,cw,ch]]}
+  const ims=await Promise.all(items.map(p=>img(p.p&&p.p[0])));
+  items.forEach((p,k)=>{const [X,Y,w,h]=cells[k];x.save();rr(x,X,Y,w,h,30);x.clip();x.fillStyle=T.card;x.fillRect(X,Y,w,h);if(ims[k])cover(x,ims[k],X,Y,w,h);
+   // étiquette
+   const small=w<500,fs=small?28:34,lh=small?40:48,pad=small?16:22;
+   const g=x.createLinearGradient(0,Y+h-(lh*2+pad*2+40),0,Y+h);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.72)");x.fillStyle=g;x.fillRect(X,Y+h-(lh*2+pad*2+40),w,lh*2+pad*2+40);
+   x.fillStyle="#fff";x.textBaseline="alphabetic";x.font=`700 ${fs}px ${SANS}`;
+   const name=(p.b?p.b+" · ":"")+(p.s||"");x.fillText(wrap(x,name,w-2*pad,1)[0],X+pad,Y+h-pad-lh);
+   const sold=p.st==="vendu";
+   if(sold){x.font=`800 ${fs+6}px ${SANS}`;x.fillStyle=T.ac;x.fillText("VENDU",X+pad,Y+h-pad)}
+   else if(p.px){x.font=`800 ${fs+10}px ${SANS}`;x.fillStyle=T.ac;const pr=eur(p.px);x.fillText(pr,X+pad,Y+h-pad);
+    if(p.pv&&p.pv>p.px){const pw=x.measureText(pr).width;x.font=`500 ${fs-4}px ${SANS}`;x.fillStyle="rgba(255,255,255,.8)";const vx=X+pad+pw+14,vt="Vinted "+eur(p.pv);x.fillText(vt,vx,Y+h-pad);const vw=x.measureText(vt).width;x.fillRect(vx,Y+h-pad-(fs-4)*0.35,vw,3)}}
+   x.restore();
+   x.fillStyle=T.bg;x.font=`800 24px ${SANS}`;const rw=x.measureText(p.r).width+28;rr(x,X+18,Y+18,rw,42,21);x.fill();x.fillStyle=T.fg;x.textBaseline="middle";x.fillText(p.r,X+32,Y+39);x.textBaseline="top"});
+ }else if(s.t){ // visuel texte seul : motif
+  x.strokeStyle=T.ac;x.lineWidth=6;rr(x,M,y,W-2*M,areaH,30);x.stroke();
+  x.fillStyle=T.mu;x.font=`600 40px ${SANS}`;x.textAlign="center";x.textBaseline="middle";const L=wrap(x,s.st2||"Vêtements de marque · seconde main",W-4*M,3);L.forEach((l,i)=>x.fillText(l,W/2,y+areaH/2+(i-(L.length-1)/2)*52));x.textAlign="left";x.textBaseline="top"}
+ // pied
+ const fy=H-footH;x.fillStyle=T.ac;x.fillRect(M,fy,120,6);
+ x.fillStyle=T.fg;x.font=`700 38px ${SANS}`;x.textBaseline="top";x.fillText(s.cta||"Tout le catalogue : air2frip.github.io",M,fy+26);
+ if(n&&items.some(p=>p.st==="vendu")){const m=document.getElementById("msg");m.textContent="Attention : une pièce de ce visuel est déjà vendue.";m.style.display="block"}
+ document.title="Visuel air2frip · "+(s.t||"");window.__visuelPret=true;
+}
+document.getElementById("dl").onclick=()=>{const c=document.getElementById("c");c.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="air2frip-visuel-"+Date.now()+".jpg";document.body.appendChild(a);a.click();a.remove()},"image/jpeg",.92)};
+draw();
+</script>
+</body>
+</html>
