@@ -358,7 +358,7 @@ function openItem(x){
  openOv();
 }
 function total(L){return L.reduce((a,x)=>a+(x.px||0),0)}
-const PAY={iban:"",bic:"",nom:"Romain Onkelinx"};
+const PAY={iban:"BE79 1036 1284 2533",bic:"",nom:"Romain Onkelinx"};
 function comm(){const L=cart();return ("air2frip "+L.map(x=>x.r).join(" ")+" "+(CL.nom||"")).trim().slice(0,140)}
 function epc(amount){return ["BCD","002","1","SCT",PAY.bic,PAY.nom,PAY.iban.replace(/\s/g,""),"EUR"+amount.toFixed(2),"","",comm()].join("\n")}
 function loadQR(cb){if(window.qrcode)return cb();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js";sc.onload=cb;sc.onerror=()=>{const q=$("qr");if(q)q.textContent="QR indisponible : utilise l'IBAN ci-dessous."};document.head.appendChild(sc)}
