@@ -13,6 +13,10 @@
  * de paiement depuis moins de 72 h, payées ou livrées) pour les afficher
  * « Réservée » et éviter qu'elles soient commandées deux fois.
  *
+ * Il reçoit aussi les messages du site (questions, demandes de mesures, alertes
+ * nouveautés) : une ligne dans l'onglet « Messages » + un e-mail « ✉️ air2frip · … »
+ * auquel tu réponds directement (la réponse part vers le client).
+ *
  * Il enregistre aussi la mesure d'audience du catalogue dans l'onglet « Visites »
  * (aucune adresse IP ni donnée personnelle) et la résume dans « Statistiques ».
  *
@@ -91,10 +95,46 @@ function statsSheet_() {
   return st;
 }
 
+const MSGS = "Messages";
+const MHEAD = ["Date", "Type", "Prénom", "E-mail", "Taille", "Réf", "Pièce", "Message", "Statut"];
+const FORMS = { question: "Question", mesures: "Demande de mesures", alerte: "Alerte nouveautés", femme: "Alerte pièces femme" };
+
+function handleForm_(o) {
+  if (o.site) return json_({ ok: true });
+  const type = FORMS[o.form];
+  const c = {};
+  ["prenom", "email", "taille", "message", "ref", "piece"].forEach(k => { c[k] = String(o[k] == null ? "" : o[k]).trim().slice(0, k === "message" ? 2000 : 200); });
+  if (!type || !c.prenom || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email)) return json_({ ok: false, error: "Indique ton prénom et un e-mail valide." });
+  if (o.form === "question" && !c.message) return json_({ ok: false, error: "Écris ton message." });
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(MSGS);
+  if (!sh) {
+    sh = ss.insertSheet(MSGS);
+    sh.appendRow(MHEAD); sh.setFrozenRows(1); sh.getRange(1, 1, 1, MHEAD.length).setFontWeight("bold");
+    sh.getRange(2, 9, 1000, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(["À traiter", "Répondu", "Prévenu"], true).build());
+  }
+  const safe = v => String(v).replace(/^[=+\-@]/, "'$&");
+  sh.appendRow([new Date(), type, safe(c.prenom), safe(c.email), c.taille, c.ref, safe(c.piece), safe(c.message), "À traiter"]);
+  const owner = Session.getEffectiveUser().getEmail();
+  if (owner) {
+    MailApp.sendEmail({
+      to: owner, replyTo: c.email, name: "Catalogue air2frip",
+      subject: "✉️ air2frip · " + type + (c.ref ? " · " + c.ref : "") + " · " + c.prenom,
+      htmlBody: "<p><b>" + esc_(type) + "</b> de " + esc_(c.prenom) + " (" + esc_(c.email) + ")</p>" +
+        (c.ref ? "<p>Pièce : " + esc_(c.ref + " – " + c.piece) + "<br><a href=\"" + CATALOGUE_URL + "#" + encodeURIComponent(c.ref) + "\">Voir la pièce</a></p>" : "") +
+        (c.taille ? "<p>Taille : " + esc_(c.taille) + "</p>" : "") +
+        (c.message ? "<p>" + esc_(c.message).replace(/\n/g, "<br>") + "</p>" : "") +
+        "<p>Réponds directement à cet e-mail : ta réponse partira vers " + esc_(c.email) + ".</p>"
+    });
+  }
+  return json_({ ok: true });
+}
+
 function doPost(e) {
   try {
     const peek = JSON.parse((e && e.postData && e.postData.contents) || "{}");
     if (peek.event) return logEvent_(peek);
+    if (peek.form) return handleForm_(peek);
   } catch (err) { return json_({ ok: false }); }
   const lock = LockService.getScriptLock();
   try {
@@ -142,7 +182,7 @@ function doPost(e) {
     if (owner) {
       MailApp.sendEmail({
         to: owner, replyTo: c.email, name: "Catalogue air2frip",
-        subject: "🛍️ Commande " + ref.n + " · " + c.prenom + " " + c.nom + " · " + eur_(q.total),
+        subject: "🛍️ Commande air2frip " + ref.n + " · " + c.prenom + " " + c.nom + " · " + eur_(q.total),
         htmlBody: "<h2>Nouvelle commande " + esc_(ref.n) + "</h2>" + recap +
           "<p><b>Réception :</b> " + esc_(MODES[mode]) + (c.transp ? " (" + esc_(c.transp) + ")" : "") + "</p>" +
           "<p><b>Client</b><br>" + who + "</p>" + (c.note ? "<p><b>Message :</b> " + esc_(c.note) + "</p>" : "") +

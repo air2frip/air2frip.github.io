@@ -45,7 +45,7 @@ footer a{color:var(--acc)}
 </style></head><body>
 <header><a href="./"><img src="img/logo.png" alt="air2frip"></a></header>
 <main id="app"><div class="card"><p class="mute">Chargement de ta commande…</p></div></main>
-<footer>Une question ? <a href="https://wa.me/32493307503" target="_blank" rel="noopener">Écris-moi sur WhatsApp</a> · <a href="./">Retour au catalogue</a></footer>
+<footer>Une question ? Réponds simplement à l’e-mail de confirmation · <a href="./">Retour au catalogue</a></footer>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -77,7 +77,7 @@ function render(data){
  <a class="btn s mob" id="dl" download="air2frip-virement-${esc(O.n)}.png" href="#">⬇️ Enregistrer le QR code</a>
  ${[["Montant",O.total.toFixed(2).replace(".",","),eur(O.total)],["IBAN",pay.iban.replace(/\s/g,""),pay.iban],["Bénéficiaire",pay.nom,pay.nom],["Communication structurée",fmtComm(O.digits),fmtComm(O.digits)]].map(([l,v,d])=>`<div class="fld"><div><small>${l}</small><span>${esc(d)}</span></div><button data-v="${esc(v)}">Copier</button></div>`).join("")}
  <div class="info">Mets bien la communication structurée : c'est elle qui relie ton virement à ta commande. Dès que je le reçois, je te confirme et on organise ${O.mode=="retrait"?"le retrait":"la livraison"}.</div></div>`}
- <div class="card"><p class="mute" style="margin:0">Si une pièce est partie entre-temps (elles sont aussi sur Vinted), je te préviens et je te rembourse. Une question ? <a href="https://wa.me/32493307503" target="_blank" rel="noopener">WhatsApp</a></p></div>`;
+ <div class="card"><p class="mute" style="margin:0">Si une pièce est partie entre-temps (elles sont aussi sur Vinted), je te préviens et je te rembourse. Une question ? Réponds simplement à l’e-mail de confirmation.</p></div>`;
  document.querySelectorAll(".fld button").forEach(b=>b.onclick=()=>copy(b,b.dataset.v));
  if(!envoi)loadQR(()=>{const g=qrcode(0,"M");g.addData(epc(pay));g.make();$("qr").innerHTML=g.createSvgTag({cellSize:5,margin:1,scalable:true});
   const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=im.width;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0);$("dl").href=c.toDataURL("image/png")};im.src=g.createDataURL(10,4)});
