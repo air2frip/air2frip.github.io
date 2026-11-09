@@ -197,7 +197,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
 .gr2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}.cf input{width:100%;min-width:0}
 .cfn{font-size:12px;color:var(--mute);line-height:1.4}.cfe{font-size:13px;color:#c2410c;font-weight:600}.cfe:empty{display:none}
 .opt small{font-weight:400;font-size:12px;opacity:.75}
-.btn.wa.off{opacity:.55}
+.btn.wa.off{opacity:.55}.btn.p.off{opacity:.55}.btn[disabled].p{cursor:wait}
 footer{text-align:center;color:var(--mute);font-size:13px;padding:10px 16px 50px;line-height:1.6}
 footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
@@ -276,11 +276,12 @@ const DAY=864e5,today=new Date();today.setHours(12,0,0,0);
 const days=d=>d?Math.floor((today-new Date(d+"T12:00:00"))/DAY):999;
 const isNew=x=>x.st!="vendu"&&days(x.added)<=7;
 const isSold=x=>x.st=="vendu";
-const avail=x=>!isSold(x);
+let RES=new Set();const isRes=x=>!isSold(x)&&RES.has(x.r);
+const avail=x=>!isSold(x)&&!RES.has(x.r);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const HEART='<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3.1 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3 1.6-1.8 3.1-3 5.2-3 3.7 0 5.9 3.7 4.4 7.2C19.5 16.4 12 21 12 21z"/></svg>';
 const toastEl=$("toast");let tt;function toast(m){toastEl.textContent=m;toastEl.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove("show"),1900)}
-function toggle(r){const x=ALL.find(y=>y.r==r);const on=sel.includes(r);if(!on&&x&&isSold(x)){toast("Cette pièce est déjà vendue");return false}sel=on?sel.filter(y=>y!=r):[...sel,r];save();updFab(!on);
+function toggle(r){const x=ALL.find(y=>y.r==r);const on=sel.includes(r);if(!on&&x&&isSold(x)){toast("Cette pièce est déjà vendue");return false}if(!on&&x&&isRes(x)){toast("Cette pièce est réservée par un autre client");return false}sel=on?sel.filter(y=>y!=r):[...sel,r];save();updFab(!on);
  document.querySelectorAll(`[data-h="${r}"]`).forEach(h=>{h.classList.toggle("on",!on);h.classList.remove("pop");void h.offsetWidth;h.classList.add("pop")});
  toast(on?"Retiré du panier":"🛍️ Ajouté au panier");return !on}
 function cart(){return D.filter(x=>sel.includes(x.r)&&avail(x))}
@@ -323,7 +324,7 @@ function render(scroll){
  chips($("fb"),"b",brands,"Toutes les marques");
  const q=norm(st.q.trim());
  let L=D.filter(x=>(st.k=="Tout"||x.k==st.k)&&(st.s=="Tout"||x.s==st.s)&&(st.b=="Tout"||brandOf(x)==st.b)&&(st.p=="Tout"||budOk(x,st.p))&&(!q||q.split(/\s+/).every(w=>norm([x.b,x.n,x.c,x.f,x.d,x.k,x.s,sLab(x.s),x.g,x.r,isNew(x)?"nouveau nouveaute":""].join(" ")).includes(w))));
- const base=(a,b)=>isSold(a)-isSold(b)||(!!a.hist)-(!!b.hist)||isNew(b)-isNew(a);
+ const base=(a,b)=>isSold(a)-isSold(b)||isRes(a)-isRes(b)||(!!a.hist)-(!!b.hist)||isNew(b)-isNew(a);
  L=[...L].sort((a,b)=>{const o=base(a,b);if(o)return o;
   if(st.sort=="b")return brandOf(a).localeCompare(brandOf(b));
   if(st.sort=="s")return sIdx(a.s)-sIdx(b.s);
@@ -339,7 +340,7 @@ function render(scroll){
  if(!L.length){g.innerHTML='<div class="empty"><b>🧺</b>Rien pour ces critères pour l\'instant.<br>Le catalogue est mis à jour plusieurs fois par semaine, repasse bientôt !<br><a class="vlink" href="'+newsLink()+'" target="_blank" rel="noopener">🔔 Me prévenir des nouveautés</a></div>'}
  L.forEach((x,i)=>{const c=document.createElement("div");c.className="card"+(isSold(x)?" sold":"");c.style.transitionDelay=Math.min(i%8,7)*40+"ms";
   const mt=mtxt(x,true);
-  c.innerHTML=`<div class="ph"><img class="a" loading="lazy" src="${x.p[0]}" alt="${esc(x.b+" "+x.n)}">${x.p[1]?`<img class="b" loading="lazy" src="${x.p[1]}" alt="${esc(x.b+" "+x.n)}, autre vue">`:""}<span class="tag">${x.r}</span>${isNew(x)?'<span class="nw">Nouveau</span>':""}${isSold(x)?'<span class="vd">Vendu</span>':`<button class="heart${sel.includes(x.r)?" on":""}" data-h="${x.r}" aria-label="Ajouter au panier">${HEART}</button>`}<span class="sz">${x.s}</span><div class="dots">${x.p.map(()=>"<i></i>").join("")}</div></div><div class="inf"><div class="br">${esc(x.b)}</div><div class="nm">${esc(x.n)}</div><div class="mt">${esc(x.c)} · ${x.g}</div>${priceHTML(x)}${mt?`<div class="ms">📏 ${mt}</div>`:""}<div class="ds">${esc(x.d)}</div></div>`;
+  c.innerHTML=`<div class="ph"><img class="a" loading="lazy" src="${x.p[0]}" alt="${esc(x.b+" "+x.n)}">${x.p[1]?`<img class="b" loading="lazy" src="${x.p[1]}" alt="${esc(x.b+" "+x.n)}, autre vue">`:""}<span class="tag">${x.r}</span>${isNew(x)?'<span class="nw">Nouveau</span>':""}${isSold(x)?'<span class="vd">Vendu</span>':isRes(x)?'<span class="vd">Réservée</span>':`<button class="heart${sel.includes(x.r)?" on":""}" data-h="${x.r}" aria-label="Ajouter au panier">${HEART}</button>`}<span class="sz">${x.s}</span><div class="dots">${x.p.map(()=>"<i></i>").join("")}</div></div><div class="inf"><div class="br">${esc(x.b)}</div><div class="nm">${esc(x.n)}</div><div class="mt">${esc(x.c)} · ${x.g}</div>${priceHTML(x)}${mt?`<div class="ms">📏 ${mt}</div>`:""}<div class="ds">${esc(x.d)}</div></div>`;
   const h=c.querySelector(".heart");if(h)h.onclick=e=>{e.stopPropagation();toggle(x.r)};
   c.tabIndex=0;c.setAttribute("role","button");c.setAttribute("aria-label",`${x.b} ${x.n}, taille ${sLab(x.s)}${isSold(x)?", vendu":x.px?", "+eur(x.px):""}`);
   c.onclick=()=>openItem(x);c.onkeydown=e=>{if((e.key=="Enter"||e.key==" ")&&e.target===c){e.preventDefault();openItem(x)}};g.appendChild(c);io.observe(c)});
@@ -370,7 +371,7 @@ function openItem(x){
  <div class="side"><div class="br">${esc(x.b)}</div><div class="nm">${esc(x.n)}</div>${priceHTML(x,true)}${desc}
  <div class="pills"><div class="pill"><small>Taille</small>${esc(x.sf)}</div><div class="pill"><small>Couleur</small>${esc(x.c)}</div><div class="pill"><small>Coupe</small>${x.g}</div><div class="pill"><small>État</small>${esc(x.e)}</div><div class="pill"><small>Réf.</small>${x.r}</div></div>
  <div class="price">💜 Prix proches : −20 % sur le prix Vinted, sans frais Vinted.${x.pn&&!sold?`<br>🏷️ Neuf en magasin, un modèle équivalent coûte environ ${eur(x.pn)} (prix indicatif).`:""}<br>🏠 Livraison à domicile offerte ou 📍 retrait gratuit. 📦 Envoi par colis (DPD, Mondial Relay…) possible, frais d'envoi à ta charge.</div>
- ${sold?'<button class="btn s" disabled>Cette pièce a déjà trouvé preneur 💜</button>':`<button class="btn p${on?" done":""}" id="tog">${on?"✓ Dans mon panier":"🛍️ Ajouter au panier"}</button>`}
+ ${sold?'<button class="btn s" disabled>Cette pièce a déjà trouvé preneur 💜</button>':isRes(x)?'<button class="btn s" disabled>Réservée par un autre client</button>':`<button class="btn p${on?" done":""}" id="tog">${on?"✓ Dans mon panier":"🛍️ Ajouter au panier"}</button>`}
  ${!sold&&!mtxt(x)?`<a class="btn s" target="_blank" rel="noopener" href="${waLink(`Salut Romain ! Tu peux m'envoyer les mesures de la pièce ${x.r} (${x.b} ${x.n}, taille ${sLab(x.s)}) ? Merci !\n${itemUrl(x)}`)}">📏 Demander les mesures sur WhatsApp</a>`:""}
  <button class="btn s" id="share">🔗 Partager cette pièce</button>
  ${cart().length?`<button class="btn s" id="go">Voir mon panier (${cart().length})</button>`:""}</div></div>
@@ -392,7 +393,7 @@ function total(L){return L.reduce((a,x)=>a+(x.px||0),0)}
 const LOT=()=>{const l=META.lot;return l&&l.min>1&&l.pct>0?l:null};
 function lotDisc(L){const l=LOT();return l&&L.length>=l.min?Math.round(total(L)*l.pct)/100:0}
 function payTotal(L){return Math.round((total(L)-lotDisc(L))*100)/100}
-const PAY={iban:"BE79 1036 1284 2533",bic:"",nom:"Romain Onkelinx"};
+let PAY={iban:"BE79 1036 1284 2533",bic:"",nom:"Romain Onkelinx"};
 function comm(){const L=cart();return ("air2frip "+L.map(x=>x.r).join(" ")+" "+(CL.nom||"")).trim().slice(0,140)}
 function epc(amount){return ["BCD","002","1","SCT",PAY.bic,PAY.nom,PAY.iban.replace(/\s/g,""),"EUR"+amount.toFixed(2),"","",comm()].join("\n")}
 function loadQR(cb){if(window.qrcode)return cb();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js";sc.onload=cb;sc.onerror=()=>{const q=$("qr");if(q)q.textContent="QR indisponible : utilise l'IBAN ci-dessous."};document.head.appendChild(sc)}
@@ -401,7 +402,8 @@ let CL={};try{CL=JSON.parse(localStorage.getItem("a2f_client")||"{}")}catch(e){}
 if(!CL.pays)CL.pays="Belgique";
 function saveCL(){try{localStorage.setItem("a2f_client",JSON.stringify(CL))}catch(e){}}
 const ADR=()=>mode=="livraison à domicile"||mode=="envoi";
-function missing(){const need=["prenom","nom","tel"].concat(ADR()?["rue","cp","ville"]:[]);const lab={prenom:"prénom",nom:"nom",tel:"téléphone",rue:"adresse",cp:"code postal",ville:"ville"};const m=need.filter(k=>!(CL[k]||"").trim()).map(k=>lab[k]);if(!mode)m.unshift("livraison ou retrait");return m}
+const ORDER=()=>!!META.order_url;
+function missing(){const need=["prenom","nom","tel"].concat(ORDER()?["email"]:[]).concat(ADR()?["rue","cp","ville"]:[]);const lab={prenom:"prénom",nom:"nom",tel:"téléphone",email:"e-mail",rue:"adresse",cp:"code postal",ville:"ville"};const m=need.filter(k=>!(CL[k]||"").trim()).map(k=>lab[k]);if(!mode)m.unshift("livraison ou retrait");return m}
 function msg(){const L=cart();const rec=mode=="livraison à domicile"?"livraison à domicile (offerte)":mode=="envoi"?"envoi par colis"+(CL.transp?" ("+CL.transp+")":"")+", frais d'envoi à ma charge":mode=="retrait"?"je viens chercher":"à préciser";
  const c=[`Nom : ${(CL.prenom||"")+" "+(CL.nom||"")}`.trim(),`Téléphone : ${CL.tel||""}`];if(CL.email)c.push(`E-mail : ${CL.email}`);
  if(CL.rue||CL.cp||CL.ville)c.push(`Adresse : ${[CL.rue,[CL.cp,CL.ville].filter(Boolean).join(" "),CL.pays].filter(Boolean).join(", ")}`);
@@ -410,43 +412,53 @@ function openList(){
  cur=null;const L=cart();
  if(!L.length){close();return}
  const T=payTotal(L),TV=L.reduce((a,x)=>a+(x.pv||0),0),LD=lotDisc(L),lt=LOT();
- box.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="list"><h2>Mon panier 🛍️</h2><div class="note">${L.length} article${L.length>1?"s":""} dans ton panier. Envoie-le moi en un clic, je te confirme la disponibilité.</div>
+ box.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="list"><h2>Mon panier 🛍️</h2><div class="note">${L.length} article${L.length>1?"s":""} dans ton panier. ${ORDER()?"Choisis comment tu veux le recevoir, remplis tes coordonnées et valide : tu paies ensuite par virement depuis l'appli de ta banque.":"Envoie-le moi en un clic, je te confirme la disponibilité."}</div>
  ${L.map((x,i)=>`<div class="li" style="animation-delay:${i*50}ms"><img src="${x.p[0]}" alt=""><div class="t"><b>${x.r}</b> · ${esc(x.b)} ${esc(x.n)}<small>${esc(x.c)} · taille ${x.s}</small></div><div class="lp">${x.px?eur(x.px):""}</div><button data-r="${x.r}" aria-label="Retirer">✕</button></div>`).join("")}
  ${LD?`<div class="tot sub"><span>🎁 Remise lot −${lt.pct} %</span><span>−${eur(LD)}</span></div>`:""}<div class="tot"><span>Total</span><span><s>${eur(TV)}</s> <b>${eur(T)}</b></span></div><div class="save">Tu économises ${eur(TV-T)} par rapport à Vinted, sans compter les frais Vinted 🎉</div>${lt&&!LD?`<div class="lotb">🎁 Ajoute encore ${lt.min-L.length} pièce${lt.min-L.length>1?"s":""} et profite de <b>−${lt.pct} % sur tout ton panier</b>.</div>`:""}${mode=="envoi"?`<div class="note" style="margin:8px 0 0">📦 Les frais d'envoi (DPD, Mondial Relay…) sont à ta charge et s'ajoutent au total : je te confirme le montant selon le poids.</div>`:mode=="livraison à domicile"?`<div class="note" style="margin:8px 0 0">🏠 Livraison à domicile offerte : je te dépose tes pièces moi-même.</div>`:""}
  <div class="note" style="margin-top:18px;margin-bottom:0">Comment tu préfères récupérer tes pièces ?</div>
  <div class="opt"><button data-m="livraison à domicile" class="${mode=="livraison à domicile"?"on":""}">🏠 Livraison <small>offerte</small></button><button data-m="retrait" class="${mode=="retrait"?"on":""}">📍 Je viens chercher</button><button data-m="envoi" class="${mode=="envoi"?"on":""}">📦 Colis <small>à mes frais</small></button></div>
  <form class="cf" id="cf" autocomplete="on"><div class="cft">🧾 Tes coordonnées <small>pour ta facture${ADR()?" et la livraison":""}</small></div>${mode=="envoi"?`<label>Transporteur souhaité<select name="transp"><option value="">Peu importe, le moins cher</option>${["Mondial Relay","DPD","bpost","InPost","Colissimo"].map(t=>`<option${CL.transp==t?" selected":""}>${t}</option>`).join("")}</select></label>`:""}
  <div class="gr2"><label>Prénom *<input name="prenom" autocomplete="given-name" required value="${esc(CL.prenom||"")}"></label><label>Nom *<input name="nom" autocomplete="family-name" required value="${esc(CL.nom||"")}"></label></div>
- <div class="gr2"><label>Téléphone *<input name="tel" type="tel" autocomplete="tel" required value="${esc(CL.tel||"")}"></label><label>E-mail<input name="email" type="email" autocomplete="email" value="${esc(CL.email||"")}" placeholder="pour recevoir la facture"></label></div>
+ <div class="gr2"><label>Téléphone *<input name="tel" type="tel" autocomplete="tel" required value="${esc(CL.tel||"")}"></label><label>E-mail ${ORDER()?"*":""}<input name="email" type="email" autocomplete="email" value="${esc(CL.email||"")}" placeholder="${ORDER()?"pour ta confirmation":"pour recevoir la facture"}"></label></div>
  <label>Adresse ${ADR()?"*":""}<input name="rue" autocomplete="street-address" placeholder="Rue et numéro" value="${esc(CL.rue||"")}"></label>
  <div class="gr2"><label>Code postal ${ADR()?"*":""}<input name="cp" autocomplete="postal-code" value="${esc(CL.cp||"")}"></label><label>Ville ${ADR()?"*":""}<input name="ville" autocomplete="address-level2" value="${esc(CL.ville||"")}"></label></div>
  <label>Pays<input name="pays" autocomplete="country-name" value="${esc(CL.pays||"Belgique")}"></label>
  <label>Un mot pour moi ?<input name="note" placeholder="Disponibilités pour le retrait, question…" value="${esc(CL.note||"")}"></label>
- <div class="cfn">Tes coordonnées restent dans ton navigateur : elles sont seulement ajoutées au message que tu m'envoies.</div><div class="cfe" id="cfe"></div></form>
- <a class="btn wa" id="wa" href="#">💬 Envoyer mon panier sur WhatsApp</a>
+ <div class="cfn">${ORDER()?"Tes coordonnées servent uniquement à ta commande, ta facture et ta livraison.":"Tes coordonnées restent dans ton navigateur : elles sont seulement ajoutées au message que tu m'envoies."}</div><div class="cfe" id="cfe"></div></form>
+ ${ORDER()?`<button class="btn p" id="order">✅ Valider ma commande · ${eur(T)}</button><div class="note" style="text-align:center">${mode=="envoi"?"Je te confirme les frais d'envoi par e-mail, puis tu paies par virement.":"Tu paies juste après par virement : QR code à scanner avec l'appli de ta banque, sans frais."}</div><a class="btn s" href="https://wa.me/32493307503" target="_blank" rel="noopener">💬 Une question ? WhatsApp</a><button class="clr" id="clr">Vider le panier</button></div>`:`<a class="btn wa" id="wa" href="#">💬 Envoyer mon panier sur WhatsApp</a>
  <a class="btn s" id="sms" href="#">✉️ Pas WhatsApp ? Envoyer par SMS</a>
  <button class="btn s" id="cp">📋 Copier le message</button>
  ${PAY.iban?`<div class="pay"><div class="cft">💳 Payer par virement <small>après ma confirmation de disponibilité</small></div><div class="payw"><div id="qr" class="qr">…</div><div class="note" style="margin:0">Scanne ce QR code avec l'appli de ta banque : le montant (${eur(T)}${mode=="envoi"?" + frais d'envoi à part":""}) et la communication sont déjà remplis.<br><b>IBAN</b> ${PAY.iban}<br><b>Bénéficiaire</b> ${PAY.nom}<br><b>Communication</b> ${esc(comm())}</div></div></div>`:""}
  <textarea id="tx" readonly></textarea><button class="clr" id="clr">Vider le panier</button>
- <div class="note">WhatsApp s'ouvre directement sur ma conversation avec ton panier déjà écrit : tu n'as plus qu'à appuyer sur Envoyer. Tu peux aussi copier le message et me l'envoyer par SMS au +32 493 30 75 03.</div></div>`;
- const upd=()=>{$("tx").value=msg();$("wa").href="https://wa.me/32493307503?text="+encodeURIComponent(msg());$("sms").href="sms:+32493307503"+(/iPhone|iPad|iPod/.test(navigator.userAgent)?"&":"?")+"body="+encodeURIComponent(msg());const m=missing();$("wa").classList.toggle("off",m.length>0);$("sms").classList.toggle("off",m.length>0);$("wa").textContent=m.length?"✏️ Remplis tes coordonnées pour envoyer":"💬 Envoyer mon panier sur WhatsApp";$("cfe").textContent=m.length?"À compléter : "+m.join(", "):""};upd();
+ <div class="note">WhatsApp s'ouvre directement sur ma conversation avec ton panier déjà écrit : tu n'as plus qu'à appuyer sur Envoyer. Tu peux aussi copier le message et me l'envoyer par SMS au +32 493 30 75 03.</div></div>`}`;
+ const upd=()=>{const m=missing();$("cfe").textContent=m.length?"À compléter : "+m.join(", "):"";if(ORDER()){$("order").classList.toggle("off",m.length>0);return}$("tx").value=msg();$("wa").href="https://wa.me/32493307503?text="+encodeURIComponent(msg());$("sms").href="sms:+32493307503"+(/iPhone|iPad|iPod/.test(navigator.userAgent)?"&":"?")+"body="+encodeURIComponent(msg());$("wa").classList.toggle("off",m.length>0);$("sms").classList.toggle("off",m.length>0);$("wa").textContent=m.length?"✏️ Remplis tes coordonnées pour envoyer":"💬 Envoyer mon panier sur WhatsApp";$("cfe").textContent=m.length?"À compléter : "+m.join(", "):""};upd();
  $("cf").addEventListener("input",e=>{if(e.target.name){CL[e.target.name]=e.target.value;saveCL();upd()}});
- const chk=e=>{const m=missing();if(m.length){e.preventDefault();toast("Complète d'abord : "+m.join(", "));const k={"livraison ou retrait":null,"prénom":"prenom",nom:"nom","téléphone":"tel",adresse:"rue","code postal":"cp",ville:"ville"}[m[0]];const f=k?$("cf").querySelector(`[name=${k}]`):box.querySelector(".opt");f&&f.scrollIntoView({behavior:"smooth",block:"center"});f&&f.focus&&f.focus();}};$("wa").onclick=chk;$("sms").onclick=chk;
+ const chk=e=>{const m=missing();if(m.length){e.preventDefault();toast("Complète d'abord : "+m.join(", "));const k={"livraison ou retrait":null,"prénom":"prenom",nom:"nom","téléphone":"tel","e-mail":"email",adresse:"rue","code postal":"cp",ville:"ville"}[m[0]];const f=k?$("cf").querySelector(`[name=${k}]`):box.querySelector(".opt");f&&f.scrollIntoView({behavior:"smooth",block:"center"});f&&f.focus&&f.focus();return false}return true};
+ if(ORDER()){$("order").onclick=()=>{if(chk({preventDefault(){}}))sendOrder($("order"))}}else{$("wa").onclick=chk;$("sms").onclick=chk}
  box.querySelector(".x").onclick=close;
  box.querySelectorAll(".opt button").forEach(b=>b.onclick=()=>{mode=b.dataset.m;save();const y=box.scrollTop;openList();box.scrollTop=y});
  box.querySelectorAll(".li button").forEach(b=>b.onclick=()=>{toggle(b.dataset.r);render();cart().length?openList():close()});
  $("clr").onclick=()=>{sel=[];save();updFab(false);document.querySelectorAll(".heart.on").forEach(h=>h.classList.remove("on"));toast("Panier vidé");close()};
- $("cp").onclick=async()=>{try{await navigator.clipboard.writeText(msg());$("cp").textContent="✓ Message copié"}catch(e){$("tx").select();$("cp").textContent="Sélectionne le texte ci-dessous et copie-le"}};
+ if($("cp"))$("cp").onclick=async()=>{try{await navigator.clipboard.writeText(msg());$("cp").textContent="✓ Message copié"}catch(e){$("tx").select();$("cp").textContent="Sélectionne le texte ci-dessous et copie-le"}};
  drawQR();
  openOv(true);
 }
+async function sendOrder(btn){
+ const L=cart();if(!L.length)return;const lbl=btn.textContent;btn.disabled=true;btn.textContent="⏳ Envoi de ta commande…";
+ const body={refs:L.map(x=>x.r),mode:mode=="livraison à domicile"?"livraison":mode,client:CL};
+ try{const r=await fetch(META.order_url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});const j=await r.json();
+  if(j.ok){sel=[];save();updFab(false);const h=new URLSearchParams({n:j.n,c:j.digits,t:Number(j.total).toFixed(2),r:body.refs.join(","),m:body.mode,p:CL.prenom||""});location.href="commande.html#"+h.toString();return}
+  if(j.unavailable&&j.unavailable.length){j.unavailable.forEach(r=>RES.add(r));sel=sel.filter(r=>!j.unavailable.includes(r));save();updFab(false);render();toast(j.error);if(cart().length){openList();const n=box.querySelector(".list .note");if(n){n.textContent="⚠️ "+j.error+" Je l'ai retirée de ton panier, vérifie ton total puis valide à nouveau.";n.style.color="#c2410c"}}else close();return}
+  throw new Error(j.error||"")}
+ catch(e){btn.disabled=false;btn.textContent=lbl;toast(e.message||"La commande n'est pas passée, réessaie.");if(!e.message)console.error(e)}}
+function loadRes(){if(!META.order_url)return;fetch(META.order_url,{cache:"no-store"}).then(r=>r.json()).then(j=>{if(!j||!j.reserved||!j.reserved.length)return;RES=new Set(j.reserved);sel=sel.filter(r=>D.some(x=>x.r==r&&avail(x)));save();render();updFab(false)}).catch(()=>{})}
 $("fab").onclick=openList;$("cartb").onclick=()=>{if(cart().length)openList();else toast("Ton panier est vide : touche le ♡ d'une pièce")};
 function fromHash(){const h=location.hash.slice(1);const x=D.find(y=>y.r==h);if(x)openItem(x)}
 function newsLink(){return META.news_link||waLink("Salut Romain ! Tu peux me prévenir sur WhatsApp quand tu ajoutes de nouvelles pièces au catalogue air2frip ? Ma taille : ")}
-function start(j){META=j;ALL=j.items||[];REV=j.reviews||[];
+function start(j){META=j;ALL=j.items||[];REV=j.reviews||[];if(j.pay&&j.pay.iban)PAY=Object.assign({bic:""},j.pay);
  {const now=()=>new Date().toLocaleString("sv-SE",{timeZone:"Europe/Brussels"}),td=now();const DR=META.drop||{};const up=ALL.filter(x=>x.pub&&x.pub>td&&(!DR.k||x.k==DR.k));ALL=ALL.filter(x=>!x.pub||x.pub<=td);const dz=$("drop");if(up.length&&dz){const P=up.map(x=>x.pub).sort()[0];const [dd,hh="00:00"]=P.split(" ");const t=new Date(dd+"T"+hh+":00");const lbl=t.toLocaleDateString("fr-FR",{weekday:"long"});const ph=up.slice(0,5).map(x=>`<img src="${x.p[0]}" alt="" loading="lazy">`).join("")+(up.length>5?`<i>+${up.length-5}</i>`:"");const fill=s=>String(s).replace(/\{n\}/g,up.length);dz.innerHTML=`<span class="dk">${esc(DR.emoji||"✨")} Bientôt en ligne</span><b>${esc(DR.title||"Le prochain drop")} arrive ${lbl} à ${+hh.split(":")[0]}h</b><span class="dt">${esc(fill(DR.text||"{n} nouvelles pièces. Premier arrivé, premier servi !"))}</span><div class="cd" id="cd"></div><div class="dp">${ph}</div>`;dz.hidden=false;const off=()=>{const n=now().replace(" ","T");return(t-new Date(n))};const tick=()=>{const ms=off();if(ms<=0){location.reload();return}const s=Math.floor(ms/1e3),u=[[Math.floor(s/86400),"jours"],[Math.floor(s/3600)%24,"h"],[Math.floor(s/60)%60,"min"],[s%60,"s"]];$("cd").innerHTML=u.map(([v,l])=>`<div><span>${String(v).padStart(2,"0")}</span><small>${l}</small></div>`).join("")};tick();setInterval(tick,1e3)}}D=ALL.filter(x=>!isSold(x)||x.hist||days(x.sold)<=7);{const SL=META.selection;const ch=SL?D.filter(x=>avail(x)&&(!SL.k||x.k==SL.k)&&(!SL.b||brandOf(x)==SL.b)):[];const sb=$("selch");if(ch.length&&sb){sb.hidden=false;$("selb").textContent=SL.title||SL.k||SL.b;const pm=ch.map(x=>x.px).filter(Boolean);$("selt").textContent=String(SL.text||"{n} pièces · dès {min}").replace(/\{n\}/g,ch.length).replace(/\{min\}/g,pm.length?eur(Math.min(...pm)):"");sb.onclick=()=>{st.k=SL.k||"Tout";st.b=SL.b||"Tout";render(true);const y=$("pieces").getBoundingClientRect().top+scrollY-8;scrollTo({top:y,behavior:"smooth"})}}}
  sel=sel.filter(r=>D.some(x=>x.r==r&&avail(x)));save();
- initTop();render();updFab(false);addEventListener("hashchange",fromHash);fromHash()}
+ initTop();render();updFab(false);addEventListener("hashchange",fromHash);fromHash();loadRes()}
 fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(start).catch(()=>{const f=window.__FALLBACK__;if(f)start(f);else $("grid").innerHTML='<div class="empty"><b>⚠️</b>Le catalogue n\'a pas pu se charger. Recharge la page.</div>'});
 
 </script></body></html>

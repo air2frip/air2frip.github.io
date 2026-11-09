@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ma commande · air2frip</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0e0d14">
+<link rel="icon" type="image/png" href="img/favicon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e0d14;--bg:#f5f4f0;--mute:#6d6c76;--line:#e7e5df;--acc:#5b50e8;--acc-d:#4338d4;--acc2:#eeecff;--ok:#137a3a;--okb:#eafbf0}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+header{background:#000;color:#fff;text-align:center;padding:26px 16px 34px}
+header a{display:inline-block}header img{width:150px;display:block}
+main{max-width:620px;margin:-18px auto 0;padding:0 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin-bottom:14px;box-shadow:0 10px 30px rgba(20,10,80,.06)}
+h1{font-family:Fredoka,sans-serif;font-weight:500;font-size:28px;margin:0 0 6px;line-height:1.15}
+h2{font-family:Fredoka,sans-serif;font-weight:500;font-size:21px;margin:0 0 12px}
+p{line-height:1.55;margin:0 0 10px}.mute{color:var(--mute);font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--okb);color:var(--ok);font-weight:600;font-size:14px;border-radius:999px;padding:6px 12px;margin-bottom:12px}
+.li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.li img{width:52px;height:65px;object-fit:cover;border-radius:10px;background:#eceae5;flex:none}
+.li .t{flex:1;min-width:0;font-size:14px}.li .t small{display:block;color:var(--mute);margin-top:2px}
+.li b.pr{font-size:14px;flex:none}
+.tot{display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;font-weight:600}
+.tot b{font-family:Fredoka,sans-serif;font-weight:500;font-size:28px}
+.qrw{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.qr{width:190px;height:190px;flex:none;background:#fff;border:1px solid var(--line);border-radius:14px;display:grid;place-items:center;padding:6px}
+.qr svg{width:100%;height:100%}
+.steps{margin:0;padding-left:20px;font-size:14px;line-height:1.6;flex:1;min-width:200px}
+.fld{display:flex;align-items:center;gap:10px;background:#f6f5f2;border-radius:14px;padding:10px 12px;margin-top:8px}
+.fld div{flex:1;min-width:0}.fld small{display:block;color:var(--mute);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px}
+.fld span{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;word-break:break-all}
+.fld button{flex:none;border:0;background:var(--acc);color:#fff;font:600 13px Inter,sans-serif;border-radius:10px;padding:9px 12px;cursor:pointer}
+.fld button.ok{background:var(--ok)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;padding:14px;font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none;margin-top:10px}
+.p{background:var(--acc);color:#fff}.p:hover{background:var(--acc-d)}
+.s{background:#f0efec;color:var(--ink)}
+.mob{display:none}@media(pointer:coarse),(max-width:700px){.mob{display:block}a.mob{display:flex}.desk{display:none}}
+.info{background:var(--acc2);color:#3b32b8;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5;margin-top:12px}
+.err{text-align:center}
+footer{text-align:center;color:var(--mute);font-size:13px;padding:0 16px 40px}
+footer a{color:var(--acc)}
+</style></head><body>
+<header><a href="./"><img src="img/logo.png" alt="air2frip"></a></header>
+<main id="app"><div class="card"><p class="mute">Chargement de ta commande…</p></div></main>
+<footer>Une question ? <a href="https://wa.me/32493307503" target="_blank" rel="noopener">Écris-moi sur WhatsApp</a> · <a href="./">Retour au catalogue</a></footer>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const eur=v=>(Math.round(v*100)/100).toLocaleString("fr-BE",{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2})+" €";
+const H=new URLSearchParams(location.hash.slice(1));
+const O={n:H.get("n")||"",digits:(H.get("c")||"").replace(/\D/g,""),total:parseFloat(H.get("t")),refs:(H.get("r")||"").split(",").filter(Boolean),mode:H.get("m")||"",prenom:H.get("p")||""};
+const MODES={livraison:"🏠 Livraison à domicile offerte",retrait:"📍 Retrait gratuit",envoi:"📦 Envoi par colis"};
+const fmtComm=d=>"+++"+d.slice(0,3)+"/"+d.slice(3,7)+"/"+d.slice(7)+"+++";
+function validComm(d){return /^\d{12}$/.test(d)&&((+d.slice(0,10))%97||97)==+d.slice(10)}
+function epc(pay){return ["BCD","002","1","SCT",pay.bic||"",pay.nom,pay.iban.replace(/\s/g,""),"EUR"+O.total.toFixed(2),"","",fmtComm(O.digits)].join("\n")}
+function loadQR(cb){const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js";s.onload=cb;s.onerror=()=>{$("qr").textContent="QR indisponible : utilise les infos ci-contre."};document.head.appendChild(s)}
+async function copy(btn,val){try{await navigator.clipboard.writeText(val)}catch(e){const t=document.createElement("textarea");t.value=val;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()}btn.textContent="✓ Copié";btn.classList.add("ok");setTimeout(()=>{btn.textContent="Copier";btn.classList.remove("ok")},1800)}
+function fail(){$("app").innerHTML=`<div class="card err"><h1>Commande introuvable</h1><p class="mute">Ce lien est incomplet. Retrouve le bon lien dans l'e-mail de confirmation, ou écris-moi.</p><a class="btn p" href="./">Retour au catalogue</a></div>`}
+function render(data){
+ const pay=Object.assign({iban:"BE79 1036 1284 2533",nom:"Romain Onkelinx",bic:""},data.pay||{});
+ const items=O.refs.map(r=>(data.items||[]).find(x=>x.r==r)).filter(Boolean);
+ const envoi=O.mode=="envoi";
+ $("app").innerHTML=`<div class="card"><span class="badge">✓ Commande enregistrée</span><h1>Merci${O.prenom?" "+esc(O.prenom):""} ! 💜</h1>
+ <p>Ta commande <b>${esc(O.n)}</b> est bien arrivée. Tes pièces sont réservées pour toi, et un récapitulatif t'a été envoyé par e-mail.</p>
+ ${items.map(x=>`<div class="li"><img src="${x.p[0]}" alt=""><div class="t"><b>${esc(x.r)}</b> · ${esc(x.b)} ${esc(x.n)}<small>${esc(x.c)} · taille ${esc(x.s)}</small></div><b class="pr">${x.px?eur(x.px):""}</b></div>`).join("")}
+ <div class="tot"><span>Total à payer${envoi?" <small class='mute'>(hors frais d'envoi)</small>":""}</span><b>${eur(O.total)}</b></div>
+ <p class="mute" style="margin-top:8px">${MODES[O.mode]||""}</p></div>
+ ${envoi?`<div class="card"><h2>📦 Prochaine étape</h2><p>Je calcule les frais d'envoi selon le poids et je t'envoie le montant total par e-mail. Tu pourras ensuite payer par virement, depuis l'appli de ta banque.</p><div class="info">Garde cette page : tes infos de paiement arriveront dans ta boîte mail.</div></div>`:`
+ <div class="card"><h2>💳 Payer par virement, sans frais</h2>
+ <p class="desk">Scanne ce QR code avec l'appli de ta banque : montant, IBAN et communication se remplissent tout seuls.</p>
+ <p class="mob">Dans l'appli de ta banque, crée un virement et copie les infos ci-dessous, ou enregistre le QR code et importe-le depuis ta galerie.</p>
+ <div class="qrw"><div class="qr" id="qr">…</div><ol class="steps desk"><li>Ouvre l'appli de ta banque (KBC, Belfius, ING, BNP, Argenta…)</li><li>Choisis « Scanner » ou « Payer avec un QR code »</li><li>Vérifie le montant et confirme</li></ol></div>
+ <a class="btn s mob" id="dl" download="air2frip-virement-${esc(O.n)}.png" href="#">⬇️ Enregistrer le QR code</a>
+ ${[["Montant",O.total.toFixed(2).replace(".",","),eur(O.total)],["IBAN",pay.iban.replace(/\s/g,""),pay.iban],["Bénéficiaire",pay.nom,pay.nom],["Communication structurée",fmtComm(O.digits),fmtComm(O.digits)]].map(([l,v,d])=>`<div class="fld"><div><small>${l}</small><span>${esc(d)}</span></div><button data-v="${esc(v)}">Copier</button></div>`).join("")}
+ <div class="info">Mets bien la communication structurée : c'est elle qui relie ton virement à ta commande. Dès que je le reçois, je te confirme et on organise ${O.mode=="retrait"?"le retrait":"la livraison"}.</div></div>`}
+ <div class="card"><p class="mute" style="margin:0">Si une pièce est partie entre-temps (elles sont aussi sur Vinted), je te préviens et je te rembourse. Une question ? <a href="https://wa.me/32493307503" target="_blank" rel="noopener">WhatsApp</a></p></div>`;
+ document.querySelectorAll(".fld button").forEach(b=>b.onclick=()=>copy(b,b.dataset.v));
+ if(!envoi)loadQR(()=>{const g=qrcode(0,"M");g.addData(epc(pay));g.make();$("qr").innerHTML=g.createSvgTag({cellSize:5,margin:1,scalable:true});
+  const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=im.width;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0);$("dl").href=c.toDataURL("image/png")};im.src=g.createDataURL(10,4)});
+}
+if(!O.n||!validComm(O.digits)||!(O.total>0)||!O.refs.length)fail();
+else fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(render).catch(()=>render({}));
+</script></body></html>
