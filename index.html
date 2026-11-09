@@ -197,7 +197,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:
 .gr2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}.cf input{width:100%;min-width:0}
 .cfn{font-size:12px;color:var(--mute);line-height:1.4}.cfe{font-size:13px;color:#c2410c;font-weight:600}.cfe:empty{display:none}
 .opt small{font-weight:400;font-size:12px;opacity:.75}
-.btn.wa.off{opacity:.55}.btn.p.off{opacity:.55}.warn{display:flex;gap:10px;align-items:flex-start;background:#fff7e6;border:1px solid #f5d9a8;color:#7a4300;border-radius:14px;padding:11px 13px;font-size:13.5px;line-height:1.45;margin:0 0 12px}.warn b{color:#5c3200}.warn i{font-style:normal;font-size:18px;line-height:1.2}.btn[disabled].p{cursor:wait}
+.btn.wa.off{opacity:.55}.btn.p.off{opacity:.55}.mesd{position:relative;max-width:820px;margin:-24px auto 38px;background:linear-gradient(135deg,#fff0f6,#f3eeff);border:1px solid #f4cfe2;border-radius:20px;padding:18px 18px 16px 74px;box-shadow:0 8px 24px rgba(214,51,132,.08)}.mesd .em{position:absolute;left:18px;top:16px;font-size:38px;line-height:1;transform:rotate(-8deg)}.mesd b{display:block;font-family:Fredoka,sans-serif;font-weight:500;font-size:20px;color:#a3135f;margin-bottom:4px}.mesd p{margin:0;font-size:14.5px;line-height:1.55;color:#3a2a33}.mesd a{display:inline-block;margin-top:10px;font-weight:600;font-size:14px;color:#a3135f}@media(max-width:560px){.mesd{padding:16px}.mesd .em{position:static;display:inline-block;font-size:30px;margin-bottom:4px}}.warn{display:flex;gap:10px;align-items:flex-start;background:#fff7e6;border:1px solid #f5d9a8;color:#7a4300;border-radius:14px;padding:11px 13px;font-size:13.5px;line-height:1.45;margin:0 0 12px}.warn b{color:#5c3200}.warn i{font-style:normal;font-size:18px;line-height:1.2}.btn[disabled].p{cursor:wait}
 footer{text-align:center;color:var(--mute);font-size:13px;padding:10px 16px 50px;line-height:1.6}
 footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
@@ -232,6 +232,7 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 </section>
 <div class="how"><div><b>1</b><span>Touche le ♡ des pièces qui te plaisent : elles vont dans ton panier 🛍️</span></div><div><b>2</b><span>Ouvre ton panier et envoie-le moi en un clic sur WhatsApp</span></div><div><b>3</b><span>Je te confirme la dispo et je t'envoie ta facture, puis livraison ou retrait</span></div></div>
 <div class="news"><p>🔔 <b>Ne rate plus les nouveautés.</b> Je te préviens sur WhatsApp dès que j'ajoute des pièces à ta taille.</p><a id="newsa" href="#" target="_blank" rel="noopener">Me prévenir</a></div>
+<div class="mesd"><span class="em" aria-hidden="true">👗</span><b>Mesdames, pas de panique !</b><p>Je sais, il n'y a pas encore énormément de pièces pour vous… Je règle le souci au plus vite : ma maman m'a déjà prévenu 😅 Les prochains arrivages vont vous faire plaisir, promis.</p><a id="mesda" href="#" target="_blank" rel="noopener">💌 Préviens-moi dès qu'il y a des pièces pour femme →</a></div>
 
 <h3 class="t" id="cart_t">❄️ Spécial hiver</h3><p class="ts" id="cart_s"></p>
 <div class="car"><button class="arr l" id="cl" aria-label="Précédent">←</button><div class="track" id="track"></div><button class="arr r" id="cr" aria-label="Suivant">→</button></div>
@@ -308,7 +309,7 @@ function initTop(){
  if(REV.length){$("avis").hidden=false;const avg=META.rating||5;const full=Math.round(avg);$("avis_h").innerHTML=`<span class="stars">${"★".repeat(full)}${"☆".repeat(5-full)}</span> ${String(avg).replace(".",",")}/5 sur Vinted · ${REV.length} avis`;
   $("revs").innerHTML=REV.map(r=>`<div class="rv"><div class="q">“</div><p>${esc(r.t)}</p>${r.tr?`<p class="trd">${esc(r.tr)}</p>`:""}<small>@${esc(r.a)}${r.d?" · "+esc(r.d):""} · acheteur Vinted</small></div>`).join("")}
  $("maj").textContent=META.updated_label||"";
- $("newsa").href=newsLink();
+ $("newsa").href=newsLink();$("mesda").href=waLink("Salut Romain ! Tu peux me prévenir dès que tu ajoutes des pièces pour femme au catalogue air2frip ? Ma taille : ");
  const lt=LOT();if(lt){$("lotliv").hidden=false;$("lotliv").textContent=`🎁 −${lt.pct} % dès ${lt.min} pièces`}
  if(REV.length){const vu=META.vinted_url||((ALL.find(x=>x.id&&avail(x))||{}).id?"https://www.vinted.be/items/"+ALL.find(x=>x.id&&avail(x)).id:"");if(vu){$("vlink").href=vu;$("vlink").hidden=false;if(!META.vinted_url)$("vlink").textContent="Voir mon profil et mes avis sur Vinted →"}}
 }
