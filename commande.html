@@ -60,6 +60,7 @@ function loadQR(cb){const s=document.createElement("script");s.src="https://cdn.
 async function copy(btn,val){try{await navigator.clipboard.writeText(val)}catch(e){const t=document.createElement("textarea");t.value=val;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()}btn.textContent="✓ Copié";btn.classList.add("ok");setTimeout(()=>{btn.textContent="Copier";btn.classList.remove("ok")},1800)}
 function fail(){$("app").innerHTML=`<div class="card err"><h1>Commande introuvable</h1><p class="mute">Ce lien est incomplet. Retrouve le bon lien dans l'e-mail de confirmation, ou écris-moi.</p><a class="btn p" href="./">Retour au catalogue</a></div>`}
 function render(data){
+ try{const u=data.stats_url||data.order_url;const k="a2f_cmd_"+O.n;if(u&&!localStorage.getItem("a2f_admin")&&!sessionStorage.getItem(k)){sessionStorage.setItem(k,"1");navigator.sendBeacon(u,new Blob([JSON.stringify({event:"commande",ref:O.n,vid:localStorage.getItem("a2f_ck")=="1"?localStorage.getItem("a2f_vid")||"":"",src:"",mob:matchMedia("(pointer:coarse)").matches})],{type:"text/plain;charset=utf-8"}))}}catch(e){}
  const pay=Object.assign({iban:"BE79 1036 1284 2533",nom:"Romain Onkelinx",bic:""},data.pay||{});
  const items=O.refs.map(r=>(data.items||[]).find(x=>x.r==r)).filter(Boolean);
  const envoi=O.mode=="envoi";

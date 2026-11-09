@@ -13,6 +13,9 @@
  * de paiement depuis moins de 72 h, payées ou livrées) pour les afficher
  * « Réservée » et éviter qu'elles soient commandées deux fois.
  *
+ * Il enregistre aussi la mesure d'audience du catalogue dans l'onglet « Visites »
+ * (aucune adresse IP ni donnée personnelle) et la résume dans « Statistiques ».
+ *
  * Statuts (colonne D, liste déroulante) : En attente de paiement, Payée,
  * Livrée, Annulée. Passe une commande en « Annulée » pour libérer ses pièces.
  */
@@ -31,7 +34,68 @@ function doGet() {
   return json_({ ok: true, reserved: Array.from(reserved_(sheet_())) });
 }
 
+const VISITS = "Visites", STATS = "Statistiques";
+const VHEAD = ["Jour", "Heure", "Type", "Visiteur", "Réf", "Source", "Appareil"];
+const EVENTS = { visite: 1, fiche: 1, panier: 1, commande: 1 };
+
+function logEvent_(o) {
+  const type = String(o.event || "");
+  if (!EVENTS[type]) return json_({ ok: false });
+  const sh = visitsSheet_();
+  const d = new Date();
+  const cut = v => String(v == null ? "" : v).replace(/^[=+\-@]/, "'$&").slice(0, 80);
+  sh.appendRow([Utilities.formatDate(d, TZ, "yyyy-MM-dd"), Utilities.formatDate(d, TZ, "HH:mm"), type,
+    cut(o.vid), cut(o.ref), cut(o.src), o.mob ? "Mobile" : "Ordinateur"]);
+  return json_({ ok: true });
+}
+
+function visitsSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(VISITS);
+  if (!sh) {
+    sh = ss.insertSheet(VISITS);
+    sh.appendRow(VHEAD);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, VHEAD.length).setFontWeight("bold");
+    sh.getRange("A:A").setNumberFormat("@");
+  }
+  return sh;
+}
+
+function statsSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let st = ss.getSheetByName(STATS);
+  if (!st) st = ss.insertSheet(STATS, 0);
+  st.clear();
+  const V = VISITS + "!";
+  const blocks = [
+    ["A1", "Par jour (visites, fiches vues, ajouts au panier, commandes)",
+      "=QUERY(" + V + "A2:C,\"select A, count(A) where A is not null group by A pivot C order by A desc\",0)"],
+    ["H1", "Visiteurs uniques par jour (ceux qui ont accepté)",
+      "=IFERROR(QUERY(UNIQUE(FILTER({" + V + "A2:A," + V + "D2:D}," + V + "D2:D<>\"\")),\"select Col1, count(Col2) group by Col1 order by Col1 desc label Col1 'Jour', count(Col2) 'Visiteurs uniques'\",0),\"Pas encore de données\")"],
+    ["K1", "Pièces les plus regardées",
+      "=IFERROR(QUERY(" + V + "A2:E,\"select E, count(E) where C='fiche' group by E order by count(E) desc limit 30 label E 'Réf', count(E) 'Vues'\",0),\"Pas encore de données\")"],
+    ["N1", "D'où viennent les visiteurs",
+      "=IFERROR(QUERY(" + V + "A2:F,\"select F, count(F) where C='visite' group by F order by count(F) desc label F 'Source', count(F) 'Visites'\",0),\"Pas encore de données\")"],
+    ["Q1", "Appareil",
+      "=IFERROR(QUERY(" + V + "A2:G,\"select G, count(G) where C='visite' group by G label G 'Appareil', count(G) 'Visites'\",0),\"Pas encore de données\")"],
+    ["T1", "Heures de visite",
+      "=IFERROR(QUERY(ARRAYFORMULA({LEFT(" + V + "B2:B,2)," + V + "C2:C}),\"select Col1, count(Col1) where Col2='visite' group by Col1 order by Col1 label Col1 'Heure', count(Col1) 'Visites'\",0),\"Pas encore de données\")"]
+  ];
+  blocks.forEach(([cell, title, f]) => {
+    const r = st.getRange(cell);
+    r.setValue(title).setFontWeight("bold");
+    r.offset(1, 0).setFormula(f);
+  });
+  st.setFrozenRows(2);
+  return st;
+}
+
 function doPost(e) {
+  try {
+    const peek = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    if (peek.event) return logEvent_(peek);
+  } catch (err) { return json_({ ok: false }); }
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
@@ -179,6 +243,8 @@ function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).se
 // À lancer une fois depuis l'éditeur (bouton ▶ Exécuter) pour donner les autorisations et créer l'onglet.
 function installer() {
   sheet_();
+  visitsSheet_();
+  statsSheet_();
   UrlFetchApp.fetch(DATA_URL);
   Logger.log("OK : onglet « " + SHEET + " » prêt, e-mails envoyés depuis " + Session.getEffectiveUser().getEmail());
 }
