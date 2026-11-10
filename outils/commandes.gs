@@ -169,7 +169,7 @@ function doPost(e) {
       "r=" + encodeURIComponent(refs.join(",")), "m=" + mode, "p=" + encodeURIComponent(c.prenom)].join("&");
     const lines = items.map(x => x.r + " – " + x.b + " " + x.n + ", " + x.c + ", taille " + x.s + " – " + eur_(x.px));
 
-    sh.appendRow([new Date(), ref.n, ref.comm, ST_WAIT, q.total, q.disc, refs.join(" "), lines.join("\n"), MODES[mode],
+    sh.appendRow([new Date(), ref.n, "'" + ref.comm, ST_WAIT, q.total, q.disc, refs.join(" "), lines.join("\n"), MODES[mode],
       c.transp, c.prenom, c.nom, "'" + c.tel, c.email, c.rue, "'" + c.cp, c.ville, c.pays, c.note]);
 
     const owner = Session.getEffectiveUser().getEmail();
