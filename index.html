@@ -206,7 +206,22 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 .tot.sub{padding:8px 0 0;font-size:14px;font-weight:500;color:#137a3a}
 .vlink{display:inline-block;margin-top:12px;font-size:14px;font-weight:600;color:var(--acc);text-decoration:none}
 .card:focus-visible,.hc:focus-visible,.sc:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
-.mph{margin:14px 0 4px;padding:12px;border:1px solid rgba(0,0,0,.1);border-radius:14px}.mph b{display:block;font-size:15px}.mph small{display:block;opacity:.65;font-size:12px;margin:2px 0 8px}.mpr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.mpr img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;display:block}</style></head><body>
+.mph{margin:14px 0 4px;padding:12px;border:1px solid rgba(0,0,0,.1);border-radius:14px}.mph b{display:block;font-size:15px}.mph small{display:block;opacity:.65;font-size:12px;margin:2px 0 8px}.mpr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.mpr img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;display:block}.port{margin:6px 0 34px}.prk{position:relative;overflow-x:auto;scrollbar-width:none;padding:34px 0 120px;cursor:grab;-webkit-overflow-scrolling:touch}.prk::-webkit-scrollbar{display:none}
+.prl{position:absolute;left:0;top:34px;height:8px;border-radius:8px;background:linear-gradient(#e2e2e6,#9c9ca4 60%,#cfcfd5);box-shadow:0 3px 6px rgba(0,0,0,.18)}
+.prw{display:flex;align-items:flex-start;padding:0 50px;width:max-content;transition:opacity .35s}.prw.dim .pi:not(.on){opacity:.12;filter:blur(1.5px)}
+.pi{position:relative;width:118px;margin-right:-34px;transform-origin:50% 2px;cursor:pointer;animation:psw 4.6s ease-in-out infinite;animation-delay:calc(var(--i) * -.41s);transition:margin .35s,opacity .35s,filter .35s;z-index:1;outline:none}
+.pi svg{display:block;width:46px;height:30px;margin:-5px auto 0;position:relative;z-index:2}
+.pi img{display:block;width:118px;height:170px;object-fit:contain;object-position:50% 0;margin-top:-9px;filter:drop-shadow(0 8px 10px rgba(20,10,60,.22));transform-origin:50% 0;transition:transform .45s cubic-bezier(.2,.9,.3,1.3)}
+.pi:hover,.pi:focus-visible,.pi.on{z-index:40;margin:0 26px}.pi:hover img,.pi:focus-visible img,.pi.on img{transform:scale(1.55)}
+.pi:hover{animation:psg .9s ease-out}
+.pi .pt{position:absolute;left:50%;top:150px;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+.pi:hover .pt,.pi.on .pt{opacity:1;top:262px}
+@keyframes psw{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
+@keyframes psg{0%{transform:rotate(0)}25%{transform:rotate(6deg)}50%{transform:rotate(-3.5deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
+.pnav{display:flex;justify-content:center;gap:10px;margin-top:-96px;position:relative}
+@media (max-width:600px){.pi{width:96px;margin-right:-26px}.pi img{width:96px;height:140px}.pi:hover img,.pi.on img{transform:scale(1.35)}.pi:hover .pt,.pi.on .pt{top:200px}.prk{padding-bottom:90px}.pnav{margin-top:-70px}}
+@media (prefers-reduced-motion:reduce){.pi,.pi:hover{animation:none}}
+</style></head><body>
 <header class="hero">
 <div class="glow g1"></div><div class="glow g2"></div>
 <img class="logo" src="img/logo.png" alt="air2frip">
@@ -234,6 +249,7 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 <div class="news"><p>🔔 <b>Ne rate plus les nouveautés.</b> Laisse-moi ton e-mail et ta taille : je te préviens dès que j'ajoute des pièces pour toi.</p><button type="button" data-contact="alerte">Me prévenir</button></div>
 <div class="mesd"><span class="em" aria-hidden="true">👗</span><b>Mesdames, pas de panique !</b><p>Je sais, il n'y a pas encore énormément de pièces pour vous… Je règle le souci au plus vite : ma maman m'a déjà prévenu 😅 Les prochains arrivages vont vous faire plaisir, promis.</p><button type="button" data-contact="femme">💌 Préviens-moi dès qu'il y a des pièces pour femme →</button></div>
 
+<section class="port" id="port" hidden><h3 class="t">✨ Les dernières arrivées</h3><p class="ts">Fouille le portant : passe dessus (ou glisse), touche une pièce pour la voir de près.</p><div class="prk" id="prk"><div class="prl" id="prl"></div><div class="prw" id="prw"></div></div><div class="pnav"><button class="arr l" id="pkl" aria-label="Précédent">←</button><button class="arr r" id="pkr" aria-label="Suivant">→</button></div></section>
 <h3 class="t" id="cart_t">❄️ Spécial hiver</h3><p class="ts" id="cart_s"></p>
 <div class="car"><button class="arr l" id="cl" aria-label="Précédent">←</button><div class="track" id="track"></div><button class="arr r" id="cr" aria-label="Suivant">→</button></div>
 
@@ -299,7 +315,15 @@ function initTop(){
  document.querySelectorAll("[data-n]").forEach(el=>{const n=+el.dataset.n,s=el.dataset.s||"";let i=0;const t=setInterval(()=>{i++;el.textContent=(s?"−":"")+Math.round(n*i/30)+s;if(i>=30)clearInterval(t)},28)});
  const FT=Object.assign({k:"Doudounes",title:"❄️ Spécial hiver",text:"Les doudounes The North Face, parfaites pour la saison."},META.featured||{});
  const nw=av.filter(isNew).length>=3;
- const W=nw?av.filter(isNew):av.filter(x=>(!FT.k||x.k==FT.k)&&(!FT.b||brandOf(x)==FT.b));
+ const PO=av.filter(x=>x.cut).sort((a,b)=>(b.added||"").localeCompare(a.added||"")).slice(0,30);
+ if(PO.length>=3){$("port").hidden=false;const HG='<svg viewBox="0 0 46 30"><path d="M23 2a4.5 4.5 0 1 1 4.5 4.5c-2.3 0-4.5 1.4-4.5 3.6v1.6L3 27h40L23 11.7" fill="none" stroke="#8d8d95" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $("prw").innerHTML=PO.map((x,i)=>`<div class="pi" tabindex="0" role="button" style="--i:${i}" data-r="${x.r}">${HG}<img loading="lazy" src="${x.cut}" alt="${esc(x.b+" "+x.n)}"><span class="pt">${esc(x.b)} · ${x.s} · ${eur(x.px||x.pv)}</span></div>`).join("");
+  requestAnimationFrame(()=>$("prl").style.width=$("prw").scrollWidth+"px");
+  const pk=$("prk"),pg=window.__pg||(window.__pg={on:0,mv:0,x:0,s:0});pk.onmousedown=e=>{pg.on=1;pg.mv=0;pg.x=e.pageX;pg.s=pk.scrollLeft};if(!pg.l){pg.l=1;addEventListener("mousemove",e=>{if(!pg.on)return;const d=e.pageX-pg.x;if(Math.abs(d)>5)pg.mv=1;pk.scrollLeft=pg.s-d});addEventListener("mouseup",()=>{pg.on=0;setTimeout(()=>pg.mv=0,0)})}
+  $("pkl").onclick=()=>pk.scrollBy({left:-420,behavior:"smooth"});$("pkr").onclick=()=>pk.scrollBy({left:420,behavior:"smooth"});
+  $("prw").querySelectorAll(".pi").forEach(el=>{const go=()=>{if(pg.mv)return;const x=D.find(y=>y.r==el.dataset.r);el.classList.add("on");$("prw").classList.add("dim");setTimeout(()=>{openItem(x);setTimeout(()=>{el.classList.remove("on");$("prw").classList.remove("dim")},400)},420)};el.onclick=go;el.onkeydown=e=>{if(e.key=="Enter")go()}})}
+ const inP=new Set(PO.length>=3?PO.map(x=>x.r):[]);
+ const W=(nw?av.filter(isNew):av.filter(x=>(!FT.k||x.k==FT.k)&&(!FT.b||brandOf(x)==FT.b))).filter(x=>!inP.has(x.r));
  $("cart_t").textContent=nw?"✨ Nouveautés de la semaine":FT.title;
  $("cart_s").textContent=nw?"Les dernières pièces arrivées, à saisir avant tout le monde.":FT.text;
  $("track").innerHTML=W.map(x=>`<div class="hc" data-r="${x.r}"><img loading="lazy" src="${x.p[0]}" alt="${esc(x.b+" "+x.n)}">${isNew(x)?'<span class="nw">Nouveau</span>':""}<div class="ov2"><small>${esc(x.c)} · ${x.s}</small><div>${esc(x.n.replace("Doudoune ",""))}</div>${x.px?`<div class="hp">${eur(x.px)} <s>${eur(x.pv)}</s></div>`:""}</div></div>`).join("");
