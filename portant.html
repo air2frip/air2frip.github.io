@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>air2frip — Le portant</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e0d14;--bg:#f5f4f0;--mute:#6d6c76;--line:#e7e5df;--acc:#5b50e8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}
+header{text-align:center;padding:28px 16px 6px}
+header a.logo{font-family:Fredoka,sans-serif;font-size:30px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:.5px}
+header p{margin:6px 0 0;color:var(--mute);font-size:14px}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:18px 12px 4px}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:500 14px Inter,sans-serif;cursor:pointer;transition:.2s}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stage{position:relative;transition:opacity .45s,filter .45s}
+body.focus .stage{opacity:.12;filter:blur(2px);pointer-events:none}
+.rack{position:relative;overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding:40px 0 200px;cursor:grab}
+.rack::-webkit-scrollbar{display:none}
+.rail{position:absolute;left:0;top:40px;height:8px;border-radius:8px;background:linear-gradient(#d9d9dd,#9c9ca4 60%,#c9c9cf);box-shadow:0 3px 6px rgba(0,0,0,.18)}
+.row{display:flex;padding:0 60px;width:max-content;align-items:flex-start}
+.it{position:relative;width:96px;margin-right:-22px;transform-origin:50% 0;cursor:pointer;animation:sway 4.5s ease-in-out infinite;animation-delay:calc(var(--i) * -.37s);transition:margin .35s;z-index:1}
+.it:hover,.it:focus-visible{z-index:50;margin:0 20px;outline:none}
+.it .hg{display:block;width:54px;height:34px;margin:-4px auto 0}
+.it .cl{width:96px;height:150px;margin-top:-6px;border-radius:14px 14px 10px 10px;overflow:hidden;background:#ddd;box-shadow:0 10px 18px rgba(20,10,60,.18);transform-origin:50% 0;transition:transform .45s cubic-bezier(.2,.9,.3,1.3),box-shadow .45s}
+.it .cl img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.it:hover .cl,.it:focus-visible .cl{transform:scale(1.9) translateY(4px);box-shadow:0 24px 40px rgba(20,10,60,.3)}
+.it:hover{animation:swing .9s ease-out}
+.it .tg{position:absolute;left:50%;top:166px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 8px;opacity:0;transition:.3s;pointer-events:none}
+.it:hover .tg{opacity:1;top:330px}
+@keyframes sway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+@keyframes swing{0%{transform:rotate(0)}25%{transform:rotate(5deg)}50%{transform:rotate(-3deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
+.hint{text-align:center;color:var(--mute);font-size:13px;margin:-160px 0 30px}
+/* focus */
+.fx{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .35s}
+body.focus .fx{opacity:1;pointer-events:auto}
+.fx .big{position:relative;width:min(78vw,360px);aspect-ratio:3/4;border-radius:22px;overflow:hidden;box-shadow:0 30px 60px rgba(20,10,60,.28);background:#ddd;transform:translateY(30px) scale(.85);transition:transform .5s cubic-bezier(.2,.9,.3,1.2)}
+body.focus .fx .big{transform:none}
+.fx .big img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .25s}
+.fx .hk{width:70px;height:44px;margin-bottom:-10px;z-index:2}
+.fx .th{display:flex;gap:8px;margin:14px 0 6px}
+.fx .th img{width:54px;height:54px;object-fit:cover;border-radius:10px;border:2px solid transparent;cursor:pointer;opacity:.7;transition:.2s}
+.fx .th img.on{border-color:var(--ink);opacity:1}
+.fx h2{font:600 20px Fredoka,sans-serif;margin:8px 0 2px;text-align:center}
+.fx .meta{color:var(--mute);font-size:14px;text-align:center}
+.fx .pr{font:600 22px Fredoka,sans-serif;margin:6px 0 12px}
+.fx .pr s{color:var(--mute);font-size:15px;margin-left:6px;font-weight:500}
+.fx .go{background:var(--acc);color:#fff;text-decoration:none;border-radius:999px;padding:12px 22px;font-weight:600;font-size:15px}
+.fx .x{position:absolute;top:16px;right:18px;width:42px;height:42px;border-radius:50%;border:0;background:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.back{display:block;text-align:center;margin:0 0 40px;color:var(--acc);font-weight:600;text-decoration:none}
+@media (max-width:600px){.it{width:84px;margin-right:-18px}.it .cl{width:84px;height:130px}.it:hover .cl{transform:scale(1.5) translateY(4px)}.it:hover .tg{top:250px}}
+@media (prefers-reduced-motion:reduce){.it,.it:hover{animation:none}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">air2frip</a><p>Le portant · passe la souris (ou glisse) sur les pièces, clique pour la voir de près</p></header>
+<div class="stage">
+ <div class="tabs" id="tabs"></div>
+ <div class="rack" id="rack"><div class="rail" id="rail"></div><div class="row" id="row"></div></div>
+ <p class="hint" id="hint"></p>
+ <a class="back" href="index.html">← Voir tout le catalogue</a>
+</div>
+<div class="fx" id="fx" aria-hidden="true">
+ <button class="x" id="x" aria-label="Fermer">×</button>
+ <svg class="hk" viewBox="0 0 70 44"><path d="M35 4a6 6 0 1 1 6 6c-3 0-6 2-6 5v3L4 38h62L35 18" fill="none" stroke="#8d8d95" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+ <div class="big"><img id="bimg" alt=""></div>
+ <div class="th" id="th"></div>
+ <h2 id="bn"></h2><div class="meta" id="bm"></div><div class="pr" id="bp"></div>
+ <a class="go" id="bgo" href="#">Voir la fiche et commander →</a>
+</div>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const eur=v=>(Math.round(v*100)/100).toString().replace(".",",")+" €";
+const HG='<svg class="hg" viewBox="0 0 54 34"><path d="M27 2a5 5 0 1 1 5 5c-2.5 0-5 1.6-5 4v2L3 30h48L27 13" fill="none" stroke="#8d8d95" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+let ALL=[],CUR="Tout";
+const now=()=>new Date();
+const live=x=>x.st=="dispo"&&(!x.pub||new Date(x.pub.replace(" ","T"))<=now());
+function tabs(){const ks=["Tout",...[...new Set(ALL.map(x=>x.k))]];$("tabs").innerHTML=ks.map(k=>`<button class="${k==CUR?"on":""}" data-k="${esc(k)}">${esc(k)}</button>`).join("");
+ $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{CUR=b.dataset.k;tabs();draw()})}
+function draw(){const L=CUR=="Tout"?ALL:ALL.filter(x=>x.k==CUR);
+ $("row").innerHTML=L.map((x,i)=>`<div class="it" tabindex="0" style="--i:${i}" data-r="${x.r}">${HG}<div class="cl"><img loading="lazy" src="${x.p[0]}" alt="${esc(x.b+" "+x.n)}"></div><span class="tg">${esc(x.b)} · ${esc(x.s)} · ${eur(x.px||x.pv)}</span></div>`).join("");
+ requestAnimationFrame(()=>{$("rail").style.width=$("row").scrollWidth+"px"});
+ $("hint").textContent=`${L.length} pièce${L.length>1?"s":""} sur le portant`;
+ $("row").querySelectorAll(".it").forEach(e=>{e.onclick=()=>{if(!drag.moved)open(ALL.find(x=>x.r==e.dataset.r))};e.onkeydown=ev=>{if(ev.key=="Enter")open(ALL.find(x=>x.r==e.dataset.r))}})}
+function open(x){const ps=x.p.filter(Boolean);$("bimg").src=ps[0];$("bimg").alt=x.b+" "+x.n;
+ $("th").innerHTML=ps.length>1?ps.map((p,i)=>`<img src="${p}" class="${i?"":"on"}" alt="">`).join(""):"";
+ $("th").querySelectorAll("img").forEach(t=>t.onclick=()=>{$("bimg").style.opacity=0;setTimeout(()=>{$("bimg").src=t.src;$("bimg").style.opacity=1},150);$("th").querySelectorAll("img").forEach(o=>o.classList.toggle("on",o==t))});
+ $("bn").textContent=x.b+" · "+x.n;$("bm").textContent=[x.c,(/^taille/i.test(x.sf||"")?x.sf:"Taille "+(x.sf||x.s)),x.e].filter(Boolean).join(" · ");
+ $("bp").innerHTML=x.px&&x.px<x.pv?`${eur(x.px)}<s>${eur(x.pv)}</s>`:eur(x.px||x.pv);
+ $("bgo").href="index.html#"+x.r;document.body.classList.add("focus");$("fx").setAttribute("aria-hidden","false")}
+function close(){document.body.classList.remove("focus");$("fx").setAttribute("aria-hidden","true")}
+$("x").onclick=close;$("fx").onclick=e=>{if(e.target==$("fx"))close()};document.onkeydown=e=>{if(e.key=="Escape")close()};
+// glisser le portant à la souris
+const drag={on:false,moved:false,x:0,s:0};const rk=$("rack");
+rk.onmousedown=e=>{drag.on=true;drag.moved=false;drag.x=e.pageX;drag.s=rk.scrollLeft};
+window.onmousemove=e=>{if(!drag.on)return;const d=e.pageX-drag.x;if(Math.abs(d)>5)drag.moved=true;rk.scrollLeft=drag.s-d};
+window.onmouseup=()=>{drag.on=false;setTimeout(()=>drag.moved=false,0)};
+fetch("data.json?"+Date.now()).then(r=>r.json()).then(j=>{ALL=(j.items||[]).filter(live);tabs();draw()});
+</script>
+</body>
+</html>
