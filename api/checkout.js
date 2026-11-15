@@ -79,6 +79,6 @@ module.exports = async (req, res) => {
     return go(res, s.url);
   } catch (e) {
     console.error(e);
-    return go(res, SITE + "/?paiement=erreur");
+    return go(res, SITE + "/?paiement=erreur&detail=" + encodeURIComponent(String(process.env.STRIPE_KEY ? (e.message || e) : "STRIPE_KEY manquante").slice(0, 160)));
   }
 };
