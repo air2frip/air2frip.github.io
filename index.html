@@ -398,7 +398,7 @@ function openItem(x){
  <div class="pills"><div class="pill"><small>Taille</small>${esc(x.sf)}</div><div class="pill"><small>Couleur</small>${esc(x.c)}</div><div class="pill"><small>Coupe</small>${x.g}</div><div class="pill"><small>État</small>${esc(x.e)}</div><div class="pill"><small>Réf.</small>${x.r}</div></div>
  <div class="price">💜 Prix proches : −20 % sur le prix Vinted, sans frais Vinted.${x.pn&&!sold?`<br>🏷️ Neuf en magasin, un modèle équivalent coûte environ ${eur(x.pn)} (prix indicatif).`:""}<br>🏠 Livraison à domicile offerte ou 📍 retrait gratuit. 📦 Envoi par colis (DPD, Mondial Relay…) possible, frais d'envoi à ta charge.</div>
  ${sold?"":`<div class="warn"><i>📏</i><span><b>Vérifie bien les mesures avant de commander.</b> Les tailles vintage taillent souvent différemment des tailles actuelles : compare ${mtxt(x)?"ces mesures":(x.mp&&x.mp.length?"les mesures en photo ci-dessous":"les mesures (demande-les-moi)")} avec un vêtement à toi posé à plat, pour ne pas avoir de surprise à la réception.</span></div>`}
- ${sold?'<button class="btn s" disabled>Cette pièce a déjà trouvé preneur 💜</button>':isRes(x)?'<button class="btn s" disabled>Réservée par un autre client</button>':`<button class="btn p${on?" done":""}" id="tog">${on?"✓ Dans mon panier":"🛍️ Ajouter au panier"}</button>`}
+ ${sold?'<button class="btn s" disabled>Cette pièce a déjà trouvé preneur 💜</button>':isRes(x)?'<button class="btn s" disabled>Réservée par un autre client</button>':`${x.pay?`<a class="btn p" id="pay" href="${x.pay}" rel="noopener">💳 Acheter maintenant · Bancontact, carte, Apple Pay</a>`:""}<button class="btn ${x.pay?"s":"p"}${on?" done":""}" id="tog">${on?"✓ Dans mon panier":"🛍️ Ajouter au panier"}</button>`}
  ${x.mp&&x.mp.length?`<div class="mph"><b>📏 Mesures au mètre ruban</b><small>Pièce posée à plat · touche une photo pour l'agrandir</small><div class="mpr">${x.mp.map((p,k)=>`<a href="${p}" target="_blank" rel="noopener"><img loading="lazy" src="${p}" alt="${esc(x.b+" "+x.n)}, mesure ${k+1}"></a>`).join("")}</div></div>`:""}
  ${!sold&&!mtxt(x)&&!(x.mp&&x.mp.length)?`<button class="btn s" id="askm">📏 Me demander les mesures</button>`:""}
  <button class="btn s" id="share">🔗 Partager cette pièce</button>
@@ -410,6 +410,7 @@ function openItem(x){
   let sx=null;g.addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true});g.addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)go(idx+(dx<0?1:-1));sx=null})}
  g.querySelectorAll(".slides img").forEach(im=>{im.onclick=e=>{const r=im.getBoundingClientRect();im.style.transformOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`;im.classList.toggle("z")};im.onmousemove=e=>{if(!im.classList.contains("z"))return;const r=im.getBoundingClientRect();im.style.transformOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`}});
  if($("tog"))$("tog").onclick=()=>{const now=toggle(x.r);const b=$("tog");b.classList.toggle("done",now);b.textContent=now?"✓ Dans mon panier":"🛍️ Ajouter au panier"};
+ if($("pay"))$("pay").onclick=()=>AUD.send("paiement",x.r);
  $("share").onclick=async()=>{const url=itemUrl(x);const t=`Regarde cette pièce du catalogue air2frip : ${x.b} ${x.n}, ${x.c}, taille ${sLab(x.s)}${x.px&&!sold?", "+eur(x.px):""}`;
   if(navigator.share&&matchMedia("(pointer:coarse)").matches){try{await navigator.share({title:"air2frip · "+x.b+" "+x.n,text:t,url});return}catch(e){if(e.name=="AbortError")return}}
   try{await navigator.clipboard.writeText(t+"\n"+url);toast("🔗 Lien copié, colle-le à qui tu veux")}catch(e){prompt("Copie ce lien :",url)}};
@@ -523,4 +524,6 @@ function start(j){META=j;ALL=j.items||[];REV=j.reviews||[];if(j.pay&&j.pay.iban)
  initTop();render();updFab(false);addEventListener("hashchange",fromHash);fromHash();loadRes();AUD.visit()}
 fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(start).catch(()=>{const f=window.__FALLBACK__;if(f)start(f);else $("grid").innerHTML='<div class="empty"><b>⚠️</b>Le catalogue n\'a pas pu se charger. Recharge la page.</div>'});
 
+
+try{const m=new URLSearchParams(location.search).get("merci");if(m){setTimeout(()=>{toast("💜 Merci pour ton achat ("+m+") ! Paiement reçu, je te contacte très vite pour la remise ou l'envoi.");clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove("show"),8000)},600);history.replaceState(null,"",location.pathname+location.hash)}}catch(e){}
 </script></body></html>
