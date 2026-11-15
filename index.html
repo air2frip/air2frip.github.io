@@ -2,10 +2,10 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>air2frip — Catalogue</title>
-<meta name="description" content="Des pièces vintage de marque (The North Face, Ralph Lauren, Lacoste…) 20 % moins cher que sur Vinted. Livraison à domicile offerte ou retrait gratuit.">
+<meta name="description" content="Des pièces vintage de marque (The North Face, Ralph Lauren, Lacoste…) 20 % moins cher que sur Vinted. Retrait gratuit à Seraing ou envoi Mondial Relay / bpost.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="air2frip"><meta property="og:locale" content="fr_BE">
 <meta property="og:title" content="air2frip — Vintage de marque à −20 %">
-<meta property="og:description" content="Doudounes, pulls, chemises, casquettes… choisis une par une, 20 % moins cher que sur Vinted. Livraison offerte ou retrait gratuit.">
+<meta property="og:description" content="Doudounes, pulls, chemises, casquettes… choisis une par une, 20 % moins cher que sur Vinted. Retrait gratuit ou envoi en point relais.">
 <meta property="og:url" content="https://air2frip.github.io/"><meta property="og:image" content="https://air2frip.github.io/img/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="air2frip, catalogue de vêtements vintage de marque">
 <meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0e0d14">
 <link rel="icon" type="image/png" href="img/favicon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png">
@@ -228,7 +228,7 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 <h1>Catalogue</h1>
 <p class="sub">Des pièces vintage de marque, choisies une par une, <b style="color:#fff">20 % moins cher que sur Vinted</b> et en direct.</p>
 <div class="stats" id="stats"></div>
-<div class="liv"><span>🏠 Livraison à domicile offerte</span><span>📍 Retrait gratuit</span><span>📦 Envoi par colis possible</span><span id="lotliv" hidden></span></div>
+<div class="liv"><span>💳 Bancontact, carte, Apple Pay</span><span>📍 Retrait gratuit</span><span>📦 Envoi par colis possible</span><span id="lotliv" hidden></span></div>
 <p class="upd">🔄 Le catalogue est mis à jour plusieurs fois par semaine : pas de panique si tu ne trouves rien pour toi aujourd'hui, repasse bientôt !</p>
 <a class="cta" href="#pieces">Voir les pièces <i>↓</i></a>
 <div class="wave"></div>
@@ -284,7 +284,7 @@ const budOk=(x,v)=>{const b=BUD.find(b=>b[0]==v);return !b||(!!x.px&&b[1](x))};
 const MAIL=()=>META.contact_email||"romain.onkelinx05@gmail.com";const mailLink=(sub,body)=>"mailto:"+MAIL()+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
 const st={k:"Tout",s:"Tout",b:"Tout",p:"Tout",q:"",sort:"d"};
 let sel=[];try{sel=JSON.parse(localStorage.getItem("a2f_sel")||"[]")}catch(e){}
-let mode="";try{mode=localStorage.getItem("a2f_mode")||"";if(mode=="venir chercher")mode="retrait"}catch(e){}
+let mode="";try{mode=localStorage.getItem("a2f_mode")||"";if(mode=="livraison à domicile")mode="";if(mode=="venir chercher")mode="retrait"}catch(e){}
 const save=()=>{try{localStorage.setItem("a2f_sel",JSON.stringify(sel));localStorage.setItem("a2f_mode",mode)}catch(e){}};
 const brandOf=x=>x.b.replace("Chaps Ralph Lauren","CHAPS").replace("Lee Sport","Lee");
 const $=id=>document.getElementById(id);
@@ -444,11 +444,11 @@ function openList(){
  const T=payTotal(L),TV=L.reduce((a,x)=>a+(x.pv||0),0),LD=lotDisc(L),lt=LOT();
  box.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="list"><h2>Mon panier 🛍️</h2><div class="note">${L.length} article${L.length>1?"s":""} dans ton panier. ${ORDER()?"Choisis comment tu veux le recevoir, remplis tes coordonnées et valide : tu paies ensuite par virement depuis l'appli de ta banque.":"Envoie-le moi en un clic, je te confirme la disponibilité."}</div>
  ${L.map((x,i)=>`<div class="li" style="animation-delay:${i*50}ms"><img src="${x.p[0]}" alt=""><div class="t"><b>${x.r}</b> · ${esc(x.b)} ${esc(x.n)}<small>${esc(x.c)} · taille ${x.s}</small></div><div class="lp">${x.px?eur(x.px):""}</div><button data-r="${x.r}" aria-label="Retirer">✕</button></div>`).join("")}
- ${LD?`<div class="tot sub"><span>🎁 Remise lot −${lt.pct} %</span><span>−${eur(LD)}</span></div>`:""}<div class="tot"><span>Total</span><span><s>${eur(TV)}</s> <b>${eur(T)}</b></span></div><div class="save">Tu économises ${eur(TV-T)} par rapport à Vinted, sans compter les frais Vinted 🎉</div>${lt&&!LD?`<div class="lotb">🎁 Ajoute encore ${lt.min-L.length} pièce${lt.min-L.length>1?"s":""} et profite de <b>−${lt.pct} % sur tout ton panier</b>.</div>`:""}${mode=="envoi"?`<div class="note" style="margin:8px 0 0">📦 Les frais d'envoi (DPD, Mondial Relay…) sont à ta charge et s'ajoutent au total : je te confirme le montant selon le poids.</div>`:mode=="livraison à domicile"?`<div class="note" style="margin:8px 0 0">🏠 Livraison à domicile offerte : je te dépose tes pièces moi-même.</div>`:""}
+ ${LD?`<div class="tot sub"><span>🎁 Remise lot −${lt.pct} %</span><span>−${eur(LD)}</span></div>`:""}<div class="tot"><span>Total</span><span><s>${eur(TV)}</s> <b>${eur(T)}</b></span></div><div class="save">Tu économises ${eur(TV-T)} par rapport à Vinted, sans compter les frais Vinted 🎉</div>${lt&&!LD?`<div class="lotb">🎁 Ajoute encore ${lt.min-L.length} pièce${lt.min-L.length>1?"s":""} et profite de <b>−${lt.pct} % sur tout ton panier</b>.</div>`:""}${mode=="envoi"?`<div class="note" style="margin:8px 0 0">📦 Les frais d'envoi (DPD, Mondial Relay…) sont à ta charge et s'ajoutent au total : je te confirme le montant selon le poids.</div>`:""}
  <div class="warn" style="margin:14px 0 0"><i>📏</i><span><b>As-tu bien vérifié les mesures de chaque pièce ?</b> En vintage, une même taille peut varier d'une marque ou d'une époque à l'autre. Un doute ? Demande-moi avant de valider.</span></div>
  ${META.checkout&&L.every(x=>x.pay)?`<div class="paycart"><a class="btn p" id="paycart" href="${META.checkout}?refs=${L.map(x=>x.r).join(",")}" rel="noopener">💳 Payer maintenant · ${eur(T)} + livraison</a><div class="note" style="text-align:center;margin:6px 0 0">Bancontact, carte ou Apple Pay. Tu choisis ensuite : 📍 retrait gratuit à Seraing, 📦 Mondial Relay 4,50 € ou 🏠 bpost 6,90 €.</div><div class="note" style="text-align:center;margin:10px 0 0;opacity:.75">— ou commande ci-dessous et paie par virement —</div></div>`:""}
  <div class="note" style="margin-top:18px;margin-bottom:0">Comment tu préfères récupérer tes pièces ?</div>
- <div class="opt"><button data-m="livraison à domicile" class="${mode=="livraison à domicile"?"on":""}">🏠 Livraison <small>offerte</small></button><button data-m="retrait" class="${mode=="retrait"?"on":""}">📍 Je viens chercher</button><button data-m="envoi" class="${mode=="envoi"?"on":""}">📦 Colis <small>à mes frais</small></button></div>
+ <div class="opt"><button data-m="retrait" class="${mode=="retrait"?"on":""}">📍 Je viens chercher</button><button data-m="envoi" class="${mode=="envoi"?"on":""}">📦 Colis <small>à mes frais</small></button></div>
  <form class="cf" id="cf" autocomplete="on"><div class="cft">🧾 Tes coordonnées <small>pour ta facture${ADR()?" et la livraison":""}</small></div>${mode=="envoi"?`<label>Transporteur souhaité<select name="transp"><option value="">Peu importe, le moins cher</option>${["Mondial Relay","DPD","bpost","InPost","Colissimo"].map(t=>`<option${CL.transp==t?" selected":""}>${t}</option>`).join("")}</select></label>`:""}
  <div class="gr2"><label>Prénom *<input name="prenom" autocomplete="given-name" required value="${esc(CL.prenom||"")}"></label><label>Nom *<input name="nom" autocomplete="family-name" required value="${esc(CL.nom||"")}"></label></div>
  <div class="gr2"><label>Téléphone *<input name="tel" type="tel" autocomplete="tel" required value="${esc(CL.tel||"")}"></label><label>E-mail ${ORDER()?"*":""}<input name="email" type="email" autocomplete="email" value="${esc(CL.email||"")}" placeholder="${ORDER()?"pour ta confirmation":"pour recevoir la facture"}"></label></div>
