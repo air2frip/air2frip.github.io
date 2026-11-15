@@ -221,15 +221,23 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 .pnav{display:flex;justify-content:center;gap:10px;margin-top:-96px;position:relative}
 @media (max-width:600px){.pi{width:96px;margin-right:-26px}.pi img{width:96px;height:140px}.pi:hover img,.pi.on img{transform:scale(1.35)}.pi:hover .pt,.pi.on .pt{top:200px}.prk{padding-bottom:90px}.pnav{margin-top:-70px}}
 @media (prefers-reduced-motion:reduce){.pi,.pi:hover{animation:none}}
+
+#stats{display:none}.liv2{margin:14px auto 22px;font-size:13.5px;opacity:.85;max-width:560px;line-height:1.6}.liv2 #lotliv::before{content:" · "}
+.card .tag,.card .ds,.card .ms,.card .pr em,.card .pr s:not(.pn),.card .pvl{display:none!important}
+.filters:not(.open) #fs,.filters:not(.open) #fb{display:none}
+.ftog{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:0 14px;font:600 13.5px Inter,sans-serif;cursor:pointer;height:44px}.filters.open .ftog{background:var(--ink);color:#fff}
+.more{grid-column:1/-1;justify-self:center;margin:18px auto 6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:13px 22px;font:600 14.5px Inter,sans-serif;cursor:pointer}
+.ck{padding:10px 12px;font-size:13px;max-width:420px}.ck p{min-width:0}
+.avis{margin-top:40px}
 </style></head><body>
 <header class="hero">
 <div class="glow g1"></div><div class="glow g2"></div>
 <img class="logo" src="img/logo.png" alt="air2frip">
 <h1>Catalogue</h1>
-<p class="sub">Des pièces vintage de marque, choisies une par une, <b style="color:#fff">20 % moins cher que sur Vinted</b> et en direct.</p>
+<p class="sub">Des pièces de marque en seconde main, choisies une par une à Liège.</p>
 <div class="stats" id="stats"></div>
-<div class="liv"><span>💳 Bancontact, carte, Apple Pay</span><span>📍 Retrait gratuit</span><span>📦 Mondial Relay ou bpost</span><span id="lotliv" hidden></span></div>
-<p class="upd">🔄 Le catalogue est mis à jour plusieurs fois par semaine : pas de panique si tu ne trouves rien pour toi aujourd'hui, repasse bientôt !</p>
+<p class="liv2">💳 Paiement en ligne · 📦 Mondial Relay ou bpost · 📍 Retrait gratuit à Seraing<span id="lotliv" hidden></span></p>
+
 <a class="cta" href="#pieces">Voir les pièces <i>↓</i></a>
 <div class="wave"></div>
 </header>
@@ -245,35 +253,36 @@ footer img{width:110px;opacity:.9;filter:invert(1);display:block;margin:0 auto 8
 <p class="sig">Merci d'être là, Romain</p><button class="wa1" type="button" data-contact="question">✉️ M'écrire</button>
 </div>
 </section>
-<div class="how"><div><b>1</b><span>Touche le ♡ des pièces qui te plaisent : elles vont dans ton panier 🛍️</span></div><div><b>2</b><span>Ouvre ton panier, remplis tes coordonnées et valide : ta commande m'arrive par e-mail</span></div><div><b>3</b><span>Tu paies par virement avec le QR code (sans frais), puis livraison ou retrait</span></div></div>
-<div class="news"><p>🔔 <b>Ne rate plus les nouveautés.</b> Laisse-moi ton e-mail et ta taille : je te préviens dès que j'ajoute des pièces pour toi.</p><button type="button" data-contact="alerte">Me prévenir</button></div>
-<div class="mesd"><span class="em" aria-hidden="true">👗</span><b>Mesdames, pas de panique !</b><p>Je sais, il n'y a pas encore énormément de pièces pour vous… Je règle le souci au plus vite : ma maman m'a déjà prévenu 😅 Les prochains arrivages vont vous faire plaisir, promis.</p><button type="button" data-contact="femme">💌 Préviens-moi dès qu'il y a des pièces pour femme →</button></div>
-
 <section class="port" id="port" hidden><h3 class="t">✨ Les dernières arrivées</h3><p class="ts">Fouille le portant : passe dessus (ou glisse), touche une pièce pour la voir de près.</p><div class="prk" id="prk"><div class="prl" id="prl"></div><div class="prw" id="prw"></div></div><div class="pnav"><button class="arr l" id="pkl" aria-label="Précédent">←</button><button class="arr r" id="pkr" aria-label="Suivant">→</button></div></section>
-<h3 class="t" id="cart_t">❄️ Spécial hiver</h3><p class="ts" id="cart_s"></p>
-<div class="car"><button class="arr l" id="cl" aria-label="Précédent">←</button><div class="track" id="track"></div><button class="arr r" id="cr" aria-label="Suivant">→</button></div>
+<div hidden><h3 class="t" id="cart_t"></h3><p class="ts" id="cart_s"></p>
+<div class="car"><button class="arr l" id="cl">←</button><div class="track" id="track"></div><button class="arr r" id="cr">→</button></div></div>
 
-<div class="drop" id="drop" hidden></div>
-<button class="sel" id="selch" hidden><span class="selk">✨ Nouvelle sélection</span><b id="selb"></b><span class="selt" id="selt"></span><span class="sela">Voir la sélection →</span></button>
-<h3 class="t" id="pieces">Toutes les pièces</h3><p class="ts">Filtre par type, taille ou marque, ou cherche directement.</p>
+<div hidden><div class="drop" id="drop" hidden></div></div>
+<button class="sel" id="selch" hidden style="display:none!important"><span class="selk">✨ Nouvelle sélection</span><b id="selb"></b><span class="selt" id="selt"></span><span class="sela">Voir la sélection →</span></button>
+<h3 class="t" id="pieces">Toutes les pièces</h3>
 <div class="filters" id="filters">
 <div class="top"><label class="search"><span>🔍</span><input id="q" type="search" placeholder="Chercher : doudoune, Lacoste, rouge, col zippé…" autocomplete="off"></label>
-<button class="cartb" id="cartb" aria-label="Mon panier">🛍️<span id="cartn">0</span></button><select id="sort" aria-label="Trier"><option value="d">Mis en avant</option><option value="b">Marque A→Z</option><option value="s">Taille ↑</option><option value="pa">Prix ↑</option><option value="pd">Prix ↓</option><option value="f">Mon panier d'abord</option></select></div>
+<span hidden><button class="cartb" id="cartb">🛍️<span id="cartn">0</span></button></span><button class="ftog" id="ftog" type="button">⚙️ Filtres</button><select id="sort" aria-label="Trier"><option value="d">Mis en avant</option><option value="b">Marque A→Z</option><option value="s">Taille ↑</option><option value="pa">Prix ↑</option><option value="pd">Prix ↓</option><option value="f">Mon panier d'abord</option></select></div>
 <div class="row" id="fk"></div>
 <div class="row" id="fs"></div>
 <div class="row" id="fb"></div>
 </div>
 <div class="count"><span id="count"></span><button class="reset" id="reset" hidden>Tout effacer</button></div>
 <div class="grid" id="grid"></div>
-<section id="parties" hidden><h3 class="t">🔥 Déjà parties</h3><p class="ts" id="parties_s">Elles ont trouvé preneur : les bonnes pièces partent vite, ne traîne pas !</p><div class="car"><button class="arr l" id="pl" aria-label="Précédent">←</button><div class="track" id="ptrack"></div><button class="arr r" id="pr" aria-label="Suivant">→</button></div><a class="pall" id="pall" href="#">Voir toutes les pièces vendues ↓</a></section>
 <section class="avis" id="avis" hidden><h3 class="t">⭐ Ils m'ont fait confiance</h3><p class="ts" id="avis_h"></p><div class="revs" id="revs"></div><a class="vlink" id="vlink" href="#" target="_blank" rel="noopener" hidden>Voir tous mes avis sur Vinted →</a></section>
+<div class="how"><div><b>1</b><span>Touche le ♡ des pièces qui te plaisent : elles vont dans ton panier 🛍️</span></div><div><b>2</b><span>Ouvre ton panier et choisis ta livraison</span></div><div><b>3</b><span>Tu paies en ligne (Bancontact, carte, Apple Pay) ou par virement, puis envoi ou retrait</span></div></div>
+<div class="news"><p>🔔 <b>Ne rate plus les nouveautés.</b> Laisse-moi ton e-mail et ta taille : je te préviens dès que j'ajoute des pièces pour toi.</p><button type="button" data-contact="alerte">Me prévenir</button></div>
+<div class="mesd"><span class="em" aria-hidden="true">👗</span><b>Mesdames, pas de panique !</b><p>Je sais, il n'y a pas encore énormément de pièces pour vous… Je règle le souci au plus vite : ma maman m'a déjà prévenu 😅 Les prochains arrivages vont vous faire plaisir, promis.</p><button type="button" data-contact="femme">💌 Préviens-moi dès qu'il y a des pièces pour femme →</button></div>
+
+<section id="parties" hidden><h3 class="t">🔥 Déjà parties</h3><p class="ts" id="parties_s">Elles ont trouvé preneur : les bonnes pièces partent vite, ne traîne pas !</p><div class="car"><button class="arr l" id="pl" aria-label="Précédent">←</button><div class="track" id="ptrack"></div><button class="arr r" id="pr" aria-label="Suivant">→</button></div><a class="pall" id="pall" href="#">Voir toutes les pièces vendues ↓</a></section>
+
 </main>
 <footer><img src="img/logo.png" alt="">Mis à jour plusieurs fois par semaine · <span id="maj"></span><br>Les pièces partent aussi sur Vinted : je te confirme la disponibilité dès que tu m'écris.</footer>
 <button class="fab" id="fab"><span>🛍️ Voir mon panier</span><span class="c" id="fabc">0</span></button>
 <button class="totop" id="totop" aria-label="Haut de page">↑</button>
 <div class="ov" id="ov"><div class="box" id="box" role="dialog" aria-modal="true" aria-label="Détail"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="ck" id="ck" role="dialog" aria-label="Mesure d'audience" hidden><p>🍪 Je compte les visites pour savoir ce qui vous plaît et améliorer le catalogue. Ok pour que ton navigateur soit reconnu d'une visite à l'autre ? Aucune adresse IP ni info personnelle n'est enregistrée.</p><div><button class="n" id="ckn">Non merci</button><button class="y" id="cky">D'accord</button></div></div>
+<div class="ck" id="ck" role="dialog" aria-label="Mesure d'audience" hidden><p>🍪 Je compte les visites (sans données perso). Ok ?</p><div><button class="n" id="ckn">Non merci</button><button class="y" id="cky">D'accord</button></div></div>
 <script>
 let ALL=[],D=[],REV=[],META={};
 const SIZES=["XS","S","M","M/L","L","XL","XXL","TU"];
@@ -332,7 +341,7 @@ function initTop(){
  const PS=D.filter(isSold).sort((a,b)=>(b.sold||"").localeCompare(a.sold||""));if(PS.length){$("parties").hidden=false;$("ptrack").innerHTML=PS.map(x=>`<div class="hc ps" data-r="${x.r}"><img loading="lazy" src="${x.p[0]}" alt="${esc(x.b+" "+x.n)}, vendu"><span class="vd">Vendu</span><div class="ov2"><small>${esc(x.b)} · ${x.s}</small><div>${esc(x.n)}</div><div class="hp">${x.lot?"Parti en lot":((x.sp||x.px)?"Parti à "+eur(x.sp||x.px):"Parti")}</div></div></div>`).join("");$("ptrack").querySelectorAll(".hc").forEach(c=>clickable(c,()=>openItem(D.find(x=>x.r==c.dataset.r))));$("pl").onclick=()=>$("ptrack").scrollBy({left:-480,behavior:"smooth"});$("pr").onclick=()=>$("ptrack").scrollBy({left:480,behavior:"smooth"});$("pall").onclick=e=>{e.preventDefault();const c=[...document.querySelectorAll(".card.sold")][0];c&&c.scrollIntoView({behavior:"smooth",block:"start"})};$("parties_s").textContent=`${PS.length} pièces ont déjà trouvé preneur : les bonnes affaires partent vite, ne traîne pas !`}
  // avis
  if(REV.length){$("avis").hidden=false;const avg=META.rating||5;const full=Math.round(avg);const nC=REV.filter(r=>r.src=="catalogue").length,nV=REV.length-nC;$("avis_h").innerHTML=`<span class="stars">${"★".repeat(full)}${"☆".repeat(5-full)}</span> ${String(avg).replace(".",",")}/5 sur Vinted · ${nV} avis Vinted${nC?` + ${nC} avis du catalogue`:""}`;
-  $("revs").innerHTML=REV.map(r=>r.src=="catalogue"?`<div class="rv"><div class="q">“</div>${r.n?`<div class="stars rvs">${"★".repeat(r.n)}${"☆".repeat(5-r.n)}</div>`:""}${r.t?`<p>${esc(r.t)}</p>`:""}${r.f?`<p class="trd">${esc(r.f)}</p>`:""}${r.p?`<p class="trd">${esc(r.p)}</p>`:""}<small>${esc(r.a)}${r.v?" · "+esc(r.v):""}${r.d?" · "+esc(r.d):""} · client du catalogue</small></div>`:`<div class="rv"><div class="q">“</div><p>${esc(r.t)}</p>${r.tr?`<p class="trd">${esc(r.tr)}</p>`:""}<small>@${esc(r.a)}${r.d?" · "+esc(r.d):""} · acheteur Vinted</small></div>`).join("")}
+  $("revs").innerHTML=REV.filter(r=>r.src=="catalogue"||/[a-zà-ÿ]{3}/i.test(r.t||"")).map(r=>r.src=="catalogue"?`<div class="rv"><div class="q">“</div>${r.n?`<div class="stars rvs">${"★".repeat(r.n)}${"☆".repeat(5-r.n)}</div>`:""}${r.t?`<p>${esc(r.t)}</p>`:""}${r.f?`<p class="trd">${esc(r.f)}</p>`:""}${r.p?`<p class="trd">${esc(r.p)}</p>`:""}<small>${esc(r.a)}${r.v?" · "+esc(r.v):""}${r.d?" · "+esc(r.d):""} · client du catalogue</small></div>`:`<div class="rv"><div class="q">“</div><p>${esc(r.t)}</p>${r.tr?`<p class="trd">${esc(r.tr)}</p>`:""}<small>@${esc(r.a)}${r.d?" · "+esc(r.d):""} · acheteur Vinted</small></div>`).join("")}
  $("maj").textContent=META.updated_label||"";
  document.querySelectorAll("[data-contact]").forEach(b=>b.onclick=()=>openContact(b.dataset.contact));
  const lt=LOT();if(lt){$("lotliv").hidden=false;$("lotliv").textContent=`🎁 −${lt.pct} % dès ${lt.min} pièces`}
@@ -349,7 +358,7 @@ function render(scroll){
  const brands=uniq(D.map(brandOf)).sort((a,b)=>D.filter(x=>brandOf(x)==b).length-D.filter(x=>brandOf(x)==a).length);
  chips($("fb"),"b",brands,"Toutes les marques");
  const q=norm(st.q.trim());
- let L=D.filter(x=>(st.k=="Tout"||x.k==st.k)&&(st.s=="Tout"||x.s==st.s)&&(st.b=="Tout"||brandOf(x)==st.b)&&(st.p=="Tout"||budOk(x,st.p))&&(!q||q.split(/\s+/).every(w=>norm([x.b,x.n,x.c,x.f,x.d,x.k,x.s,sLab(x.s),x.g,x.r,isNew(x)?"nouveau nouveaute":""].join(" ")).includes(w))));
+ var L=D.filter(x=>(st.k=="Tout"||x.k==st.k)&&(st.s=="Tout"||x.s==st.s)&&(st.b=="Tout"||brandOf(x)==st.b)&&(st.p=="Tout"||budOk(x,st.p))&&(!q||q.split(/\s+/).every(w=>norm([x.b,x.n,x.c,x.f,x.d,x.k,x.s,sLab(x.s),x.g,x.r,isNew(x)?"nouveau nouveaute":""].join(" ")).includes(w))));
  const base=(a,b)=>isSold(a)-isSold(b)||isRes(a)-isRes(b)||(!!a.hist)-(!!b.hist)||isNew(b)-isNew(a);
  L=[...L].sort((a,b)=>{const o=base(a,b);if(o)return o;
   if(st.sort=="b")return brandOf(a).localeCompare(brandOf(b));
@@ -362,7 +371,7 @@ function render(scroll){
  $("reset").hidden=!active;
  const nA=L.filter(avail).length,nS=L.filter(x=>isSold(x)&&!x.hist).length,nH=L.filter(x=>x.hist).length;
  $("count").textContent=nA+(nA>1?" pièces dispo":" pièce dispo")+(nS?` · ${nS} vendue${nS>1?"s":""} cette semaine`:"")+(nH?` · ${nH} déjà parties`:"");
- const g=$("grid");g.innerHTML="";
+ const g=$("grid");g.innerHTML="";const sig=JSON.stringify(st);if(sig!==window.__sig){window.__sig=sig;window.__pg=24}const Lall=L;L=L.slice(0,window.__pg);
  if(!L.length){g.innerHTML='<div class="empty"><b>🧺</b>Rien pour ces critères pour l\'instant.<br>Le catalogue est mis à jour plusieurs fois par semaine, repasse bientôt !<br><button class="vlink" type="button" style="border:0;background:none;cursor:pointer;font:inherit;font-weight:600" onclick="openContact(\'alerte\')">🔔 Me prévenir des nouveautés</button></div>'}
  L.forEach((x,i)=>{const c=document.createElement("div");c.className="card"+(isSold(x)?" sold":"");c.style.transitionDelay=Math.min(i%8,7)*40+"ms";
   const mt=mtxt(x,true);
@@ -370,9 +379,11 @@ function render(scroll){
   const h=c.querySelector(".heart");if(h)h.onclick=e=>{e.stopPropagation();toggle(x.r)};
   c.tabIndex=0;c.setAttribute("role","button");c.setAttribute("aria-label",`${x.b} ${x.n}, taille ${sLab(x.s)}${isSold(x)?", vendu":x.px?", "+eur(x.px):""}`);
   c.onclick=()=>openItem(x);c.onkeydown=e=>{if((e.key=="Enter"||e.key==" ")&&e.target===c){e.preventDefault();openItem(x)}};g.appendChild(c);io.observe(c)});
+ if(Lall.length>L.length){const mb=document.createElement("button");mb.className="more";mb.textContent=`Voir plus de pièces (${Lall.length-L.length} restantes)`;mb.onclick=()=>{window.__pg+=24;render()};g.appendChild(mb)}
  if(scroll){const y=$("pieces").getBoundingClientRect().top+scrollY-8;if(scrollY>y+40)scrollTo({top:y,behavior:"smooth"})}
 }
 let qt;$("q").oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value;render()},160)};
+$("ftog").onclick=()=>$("filters").classList.toggle("open");
 $("sort").onchange=e=>{st.sort=e.target.value;render()};
 $("reset").onclick=()=>{st.k=st.s=st.b=st.p="Tout";st.q="";$("q").value="";render()};
 addEventListener("scroll",()=>{$("filters").classList.toggle("stuck",$("filters").getBoundingClientRect().top<=0&&scrollY>200);$("totop").classList.toggle("show",scrollY>900)},{passive:true});
@@ -396,7 +407,7 @@ function openItem(x){
  box.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="det"><div class="gal"><div class="slides">${x.p.map((p,k)=>`<img src="${p}" alt="${esc(x.b+" "+x.n)}, photo ${k+1} sur ${x.p.length}">`).join("")}</div>${isNew(x)?'<span class="nw big">Nouveau</span>':""}${sold?'<span class="vd big">Vendu</span>':""}${mbar(x)}${x.p.length>1?`<button class="ga l" aria-label="Photo précédente">←</button><button class="ga r" aria-label="Photo suivante">→</button><div class="gd">${x.p.map((_,k)=>`<i class="${k?"":"on"}" data-k="${k}"></i>`).join("")}</div>`:""}</div>
  <div class="side"><div class="br">${esc(x.b)}</div><div class="nm">${esc(x.n)}</div>${priceHTML(x,true)}${desc}
  <div class="pills"><div class="pill"><small>Taille</small>${esc(x.sf)}</div><div class="pill"><small>Couleur</small>${esc(x.c)}</div><div class="pill"><small>Coupe</small>${x.g}</div><div class="pill"><small>État</small>${esc(x.e)}</div><div class="pill"><small>Réf.</small>${x.r}</div></div>
- <div class="price">💜 ${x.pv>x.px?"Prix proches : −20 % sur le prix Vinted, sans frais Vinted.":"Prix doux, sans frais Vinted."}${x.pn&&!sold?`<br>🏷️ Neuf en magasin, un modèle équivalent coûte environ ${eur(x.pn)} (prix indicatif).`:""}<br>💳 Paiement direct : 📍 retrait gratuit à Seraing, 📦 Mondial Relay 4,50 € ou 🏠 bpost à domicile 6,90 €, frais d'envoi à ta charge.</div>
+ <div class="price">${x.pn&&!sold?`🏷️ Neuf en magasin : environ ${eur(x.pn)}<br>`:""}💳 Paiement en ligne · 📦 Mondial Relay 4,50 € · 🏠 bpost 6,90 € · 📍 Retrait gratuit</div>
  ${sold?"":`<div class="warn"><i>📏</i><span><b>Vérifie bien les mesures avant de commander.</b> Les tailles vintage taillent souvent différemment des tailles actuelles : compare ${mtxt(x)?"ces mesures":(x.mp&&x.mp.length?"les mesures en photo ci-dessous":"les mesures (demande-les-moi)")} avec un vêtement à toi posé à plat, pour ne pas avoir de surprise à la réception.</span></div>`}
  ${sold?'<button class="btn s" disabled>Cette pièce a déjà trouvé preneur 💜</button>':isRes(x)?'<button class="btn s" disabled>Réservée par un autre client</button>':`${x.pay?`<a class="btn p" id="pay" href="${x.pay}" rel="noopener">💳 Acheter maintenant · Bancontact, carte, Apple Pay</a>`:""}<button class="btn ${x.pay?"s":"p"}${on?" done":""}" id="tog">${on?"✓ Dans mon panier":"🛍️ Ajouter au panier"}</button>`}
  ${x.mp&&x.mp.length?`<div class="mph"><b>📏 Mesures au mètre ruban</b><small>Pièce posée à plat · touche une photo pour l'agrandir</small><div class="mpr">${x.mp.map((p,k)=>`<a href="${p}" target="_blank" rel="noopener"><img loading="lazy" src="${p}" alt="${esc(x.b+" "+x.n)}, mesure ${k+1}"></a>`).join("")}</div></div>`:""}
