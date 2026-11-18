@@ -228,14 +228,11 @@ footer a{color:var(--acc);font-weight:600;text-decoration:none}footer img{width:
 .ftog{flex:none;position:relative;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:14px;padding:0 15px;font:600 14px Inter,sans-serif;cursor:pointer;height:44px;transition:border-color .2s,background .2s}.ftog:hover{border-color:#bdb8f5}.ftog svg{width:18px;height:18px}.ftog.has{background:var(--ink);color:#fff;border-color:var(--ink)}
 .fbadge[hidden]{display:none!important}.fbadge{min-width:20px;height:20px;border-radius:999px;background:var(--acc);color:#fff;font:700 11.5px Inter,sans-serif;display:grid;place-items:center;padding:0 5px}
 .cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:12px 2px 4px;scroll-snap-type:x proximity}.cats::-webkit-scrollbar{display:none}
-.cat{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:6px;width:76px;border:0;background:none;padding:0;cursor:pointer;color:var(--ink);font:500 12.5px Inter,sans-serif;-webkit-tap-highlight-color:transparent}
-.cat i{position:relative;display:block;width:62px;height:62px;border-radius:50%;background:#fff;border:1px solid var(--line);overflow:hidden;transition:box-shadow .25s,transform .25s,border-color .25s}
-.cat i img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cat i img.ct{object-fit:contain;padding:5px;inset:2px 0 -2px}
-.cat i b{position:absolute;inset:0;display:grid;place-items:center;font:600 13px Inter,sans-serif;color:var(--acc)}
-.cat span{max-width:76px;text-align:center;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cat small{display:block;font-size:11px;color:var(--mute);font-weight:500;margin-top:1px}
-.cat.z{opacity:.4}.cat i.mo{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}.cat i.mo img{position:static;width:100%;height:100%;object-fit:cover}.reset{white-space:nowrap}.cat:hover i{transform:translateY(-2px);border-color:#bdb8f5}
-.cat.on i{border-color:var(--acc);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--acc)}.cat.on span{font-weight:700}
-.filters.stuck .cats{padding-top:8px}.filters.stuck .cat{flex-direction:row;width:auto;gap:0}.filters.stuck .cat i{display:none}.filters.stuck .cat span{max-width:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px}.filters.stuck .cat small{display:none}.filters.stuck .cat.on span{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cat{flex:none;scroll-snap-align:start;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 14px 6px 7px;cursor:pointer;font:500 14px Inter,sans-serif;transition:background .2s,border-color .2s,color .2s;-webkit-tap-highlight-color:transparent}
+.cat u{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--acc2);color:var(--acc-d);transition:background .2s,color .2s}.cat u svg{width:17px;height:17px}
+.cat span{display:flex;gap:5px;align-items:baseline;white-space:nowrap}.cat small{font-size:12px;color:var(--mute)}
+.cat:hover{border-color:#bdb8f5}.cat.on{background:var(--ink);border-color:var(--ink);color:#fff}.cat.on u{background:#ffffff26;color:#fff}.cat.on small{color:#fff;opacity:.7}.cat.z{opacity:.4}.reset{white-space:nowrap}
+.filters.stuck .cats{padding-top:8px}
 .act{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 2px}.act:empty{display:none}
 .ach{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--acc2);color:var(--acc-d);border-radius:999px;padding:6px 8px 6px 12px;font:600 13px Inter,sans-serif;cursor:pointer}.ach em{font-style:normal;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#fff;font-size:12px;line-height:1}
 .aclr{border:0;background:none;color:var(--mute);font:500 13px Inter,sans-serif;text-decoration:underline;cursor:pointer;padding:6px 4px}
@@ -384,14 +381,23 @@ function initTop(){
  if(REV.length){const vu=META.vinted_url||((ALL.find(x=>x.id&&avail(x))||{}).id?"https://www.vinted.be/items/"+ALL.find(x=>x.id&&avail(x)).id:"");if(vu){$("vlink").href=vu;$("vlink").hidden=false;if(!META.vinted_url)$("vlink").textContent="Voir mon profil et mes avis sur Vinted →"}}
 }
 const KSH={"Gilets & cardigans":"Gilets"};
+const KIC={"Tout":'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+"Pulls":'<path d="M9 3.5c.6 1.3 1.7 2 3 2s2.4-.7 3-2l4.3 2.1c.8.4 1.3 1.2 1.3 2.1V13h-3v7.5H6.4V13h-3V7.7c0-.9.5-1.7 1.3-2.1Z"/><path d="M6.4 17.5h11.2"/>',
+"Casquettes":'<path d="M4.5 15.5a7.5 7.5 0 0 1 15 0Z"/><path d="M12 8v-.8"/><path d="M4.5 15.5h11.8c1.9 0 3.6.6 4.7 1.7-1.3.8-3 1.3-5 1.3H6"/>',
+"Doudounes":'<path d="M9 3.5h6l1 2 3.6 1.6c.6.3 1 .9 1 1.6V20h-3.5V11M6.9 11v9H3.4V8.7c0-.7.4-1.3 1-1.6L8 5.5Z"/><path d="M12 5.5v15M6.9 11h10.2M6.9 15.5h10.2M6.9 20h10.2"/>',
+"Chemises":'<path d="M9 3.5 12 7l3-3.5 4.3 1.9c.8.4 1.3 1.2 1.3 2.1V13h-3v7.5H6.4V13h-3V7.5c0-.9.5-1.7 1.3-2.1Z"/><path d="M12 7v13.5"/><circle cx="13.3" cy="10.5" r=".4"/><circle cx="13.3" cy="14" r=".4"/><circle cx="13.3" cy="17.5" r=".4"/>',
+"Sweats":'<path d="M8.5 6.5a3.5 3.5 0 0 1 7 0"/><path d="M8.5 6.5 4.7 8.2c-.8.4-1.3 1.2-1.3 2.1V14h3v6.5h11.2V14h3v-3.7c0-.9-.5-1.7-1.3-2.1l-3.8-1.7"/><path d="M10 15h4M10.5 6.5l1.5 3 1.5-3"/>',
+"Gilets & cardigans":'<path d="M9 3.5 12 12l3-8.5 4.3 1.9c.8.4 1.3 1.2 1.3 2.1V13h-3v7.5H6.4V13h-3V7.5c0-.9.5-1.7 1.3-2.1Z"/><path d="M12 12v8.5"/><circle cx="13.2" cy="14.5" r=".4"/><circle cx="13.2" cy="17.5" r=".4"/>',
+"Vestes":'<path d="M9.5 3.5h5l4.8 2c.8.3 1.3 1.1 1.3 2V20h-3.4v-9M6.8 11v9H3.4V7.5c0-.9.5-1.7 1.3-2l4.8-2Z"/><path d="M12 3.5v17M9.5 3.5 12 8l2.5-4.5M6.8 20h10.6M8.5 13.5h1.5"/>',
+"Autres":'<path d="M20.6 13.4 12.4 21.6a2 2 0 0 1-2.8 0l-7.2-7.2V4.4h10l8.2 8.2a.6.6 0 0 1 0 .8Z"/><circle cx="7.5" cy="9" r="1.3"/>'};
+const kic=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${KIC[k]||KIC.Autres}</svg>`;
+
 function match(x,skip){skip=skip||"";const q=norm(st.q.trim());
  return (skip=="k"||st.k=="Tout"||x.k==st.k)&&(skip=="s"||!st.S.size||st.S.has(x.s))&&(skip=="b"||!st.B.size||st.B.has(brandOf(x)))&&(skip=="g"||st.g=="Tout"||x.g==st.g||x.g=="Mixte")&&(skip=="p"||st.p=="Tout"||budOk(x,st.p))&&(!q||q.split(/\s+/).every(w=>norm([x.b,x.n,x.c,x.f,x.d,x.k,x.s,sLab(x.s),x.g,x.r,isNew(x)?"nouveau nouveaute":""].join(" ")).includes(w)))}
 function nAct(){return (st.k!="Tout")+st.S.size+st.B.size+(st.g!="Tout")+(st.p!="Tout")}
 function cats(){const el=$("fk");const av=D.filter(avail);const ks=uniq(av.map(x=>x.k)).sort((a,b)=>av.filter(x=>x.k==b).length-av.filter(x=>x.k==a).length);
- const pic=k=>{const L=av.filter(x=>!k||x.k==k);const c=L.find(x=>x.cut);const y=c||L[0];return y?(c?`<img class="ct" src="${c.cut}" alt="" loading="lazy">`:`<img src="${y.p[0]}" alt="" loading="lazy">`):""};
  const n=k=>D.filter(x=>avail(x)&&(k=="Tout"||x.k==k)&&match(x,"k")).length;
- const mo=ks.slice(0,4).map(k=>{const y=av.find(x=>x.k==k);return y?`<img src="${y.p[0]}" alt="" loading="lazy">`:""}).join("");
- el.innerHTML=["Tout",...ks].map(k=>`<button type="button" role="tab" class="cat${st.k==k?" on":""}${st.k!=k&&!n(k)?" z":""}" aria-selected="${st.k==k}" data-k="${esc(k)}"><i${k=="Tout"?' class="mo"':""}>${k=="Tout"?mo:pic(k)}</i><span>${esc(k=="Tout"?"Tout voir":(KSH[k]||k))}<small>${n(k)}</small></span></button>`).join("");
+  el.innerHTML=["Tout",...ks].map(k=>`<button type="button" role="tab" class="cat${st.k==k?" on":""}${st.k!=k&&!n(k)?" z":""}" aria-selected="${st.k==k}" data-k="${esc(k)}"><u>${kic(k)}</u><span>${esc(k=="Tout"?"Tout voir":(KSH[k]||k))}<small>${n(k)}</small></span></button>`).join("");
  el.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{st.k=b.dataset.k;render(true)});
  const on=el.querySelector(".cat.on");if(on&&on.scrollIntoViewIfNeeded)on.scrollIntoViewIfNeeded()}
 function actChips(){const a=[];const add=(l,f)=>a.push([l,f]);
