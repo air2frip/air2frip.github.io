@@ -526,7 +526,7 @@ function close(){ov.classList.remove("open");document.body.style.overflow="";if(
 ov.onclick=e=>{if(e.target===ov)close()};
 let cur=null,idx=0;
 document.addEventListener("keydown",e=>{if(!ov.classList.contains("open"))return;if(e.key=="Escape")close();if(cur&&e.key=="ArrowRight")go(idx+1);if(cur&&e.key=="ArrowLeft")go(idx-1)});
-function go(i){if(!cur)return;const n=cur.p.length;idx=(i+n)%n;const s=box.querySelector(".slides");s.style.transform=`translateX(${-idx*100}%)`;s.querySelectorAll("img").forEach(im=>im.classList.remove("z"));box.querySelectorAll(".gd i").forEach((d,k)=>d.classList.toggle("on",k==idx))}
+function gp(x){return x.pa&&x.pa.length?x.pa:x.p} /* toutes les photos Vinted (pa) dans la fiche, les 3 premières (p) sur la carte */ function go(i){if(!cur)return;const n=gp(cur).length;idx=(i+n)%n;const s=box.querySelector(".slides");s.style.transform=`translateX(${-idx*100}%)`;s.querySelectorAll("img").forEach(im=>im.classList.remove("z"));box.querySelectorAll(".gd i").forEach((d,k)=>d.classList.toggle("on",k==idx))}
 function similar(x){return D.filter(y=>y.r!=x.r&&avail(y)&&(brandOf(y)==brandOf(x)||y.k==x.k)).sort((a,b)=>(b.s==x.s)-(a.s==x.s)||(brandOf(b)==brandOf(x))-(brandOf(a)==brandOf(x))).slice(0,8)}
 function mbar(x){const m=x.m||{};const k=MORD.filter(k=>m[k]);
  if(!k.length)return `<div class="mbar"><span>📏 Mesures sur demande</span></div>`;
@@ -536,7 +536,7 @@ function openItem(x){
  if(!x)return;if(cur!==x)AUD.send("fiche",x.r);cur=x;idx=0;const on=sel.includes(x.r);const sold=isSold(x);
  try{history.replaceState(null,"","#"+x.r)}catch(e){}
  const desc=(x.desc||x.d).split(/\n+/).filter(Boolean).map(p=>`<p class="dsl">${esc(p)}</p>`).join("");
- box.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="det"><div class="gal"><div class="slides">${x.p.map((p,k)=>`<img src="${p}" alt="${esc(x.b+" "+x.n)}, photo ${k+1} sur ${x.p.length}">`).join("")}</div>${isNew(x)?'<span class="nw big">Nouveau</span>':""}${sold?'<span class="vd big">Vendu</span>':""}${mbar(x)}${x.p.length>1?`<button class="ga l" aria-label="Photo précédente">←</button><button class="ga r" aria-label="Photo suivante">→</button><div class="gd">${x.p.map((_,k)=>`<i class="${k?"":"on"}" data-k="${k}"></i>`).join("")}</div>`:""}</div>
+ box.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="det"><div class="gal"><div class="slides">${gp(x).map((p,k)=>`<img src="${p}" alt="${esc(x.b+" "+x.n)}, photo ${k+1} sur ${gp(x).length}">`).join("")}</div>${isNew(x)?'<span class="nw big">Nouveau</span>':""}${sold?'<span class="vd big">Vendu</span>':""}${mbar(x)}${gp(x).length>1?`<button class="ga l" aria-label="Photo précédente">←</button><button class="ga r" aria-label="Photo suivante">→</button><div class="gd">${gp(x).map((_,k)=>`<i class="${k?"":"on"}" data-k="${k}"></i>`).join("")}</div>`:""}</div>
  <div class="side"><div class="br">${esc(x.b)}</div><div class="nm">${esc(x.n)}</div>${priceHTML(x,true)}${desc}
  <div class="pills"><div class="pill"><small>Taille</small>${esc(x.sf)}</div><div class="pill"><small>Couleur</small>${esc(x.c)}</div><div class="pill"><small>Coupe</small>${x.g}</div><div class="pill"><small>État</small>${esc(x.e)}</div><div class="pill"><small>Réf.</small>${x.r}</div></div>
  <div class="price">${x.pn&&!sold?`🏷️ Neuf en magasin : environ ${eur(x.pn)}<br>`:""}💳 Paiement en ligne · 📦 Mondial Relay 4,50 € · 🏠 bpost 6,90 € · 📍 Retrait gratuit</div>
@@ -549,7 +549,7 @@ function openItem(x){
  <div class="sim"><h4>${sold?"Dans le même style, encore dispo":"Tu aimeras aussi"}</h4><div class="simr">${similar(x).map(y=>`<div class="sc" data-r="${y.r}"><img loading="lazy" src="${y.p[0]}" alt="${esc(y.b+" "+y.n)}"><div>${esc(y.n)}<br><small>${esc(y.b)} · ${y.s}${y.px?" · "+eur(y.px):""}</small></div></div>`).join("")}</div></div>`;
  box.querySelector(".x").onclick=close;
  const g=box.querySelector(".gal");
- if(x.p.length>1){g.querySelector(".ga.l").onclick=()=>go(idx-1);g.querySelector(".ga.r").onclick=()=>go(idx+1);g.querySelectorAll(".gd i").forEach(d=>d.onclick=()=>go(+d.dataset.k));
+ if(gp(x).length>1){g.querySelector(".ga.l").onclick=()=>go(idx-1);g.querySelector(".ga.r").onclick=()=>go(idx+1);g.querySelectorAll(".gd i").forEach(d=>d.onclick=()=>go(+d.dataset.k));
   let sx=null;g.addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true});g.addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)go(idx+(dx<0?1:-1));sx=null})}
  g.querySelectorAll(".slides img").forEach(im=>{im.onclick=e=>{const r=im.getBoundingClientRect();im.style.transformOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`;im.classList.toggle("z")};im.onmousemove=e=>{if(!im.classList.contains("z"))return;const r=im.getBoundingClientRect();im.style.transformOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`}});
  if($("tog"))$("tog").onclick=()=>{const now=toggle(x.r);const b=$("tog");b.classList.toggle("done",now);b.textContent=now?"✓ Dans mon panier":"🛍️ Ajouter au panier"};
