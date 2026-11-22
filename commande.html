@@ -42,6 +42,20 @@ p{line-height:1.55;margin:0 0 10px}.mute{color:var(--mute);font-size:14px}
 .err{text-align:center}
 footer{text-align:center;color:var(--mute);font-size:13px;padding:0 16px 40px}
 footer a{color:var(--acc)}
+
+/* Finitions design 22/11/2026 (règles de DESIGN.md : Emil Kowalski, Impeccable, Taste) */
+:root{--ease-out:cubic-bezier(.23,1,.32,1)}
+::selection{background:#dcd8ff;color:var(--ink)}
+html{caret-color:var(--acc)}
+h1,h2{text-wrap:balance}p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.li b.pr,.tot b,.fld span{font-variant-numeric:tabular-nums}
+.btn,.fld button{transition:transform .16s var(--ease-out),background .16s ease}
+.btn:active,.fld button:active{transform:scale(.97)}
+.fld button{min-height:44px;padding:0 14px}
+.p:hover{background:var(--acc)}
+@media(hover:hover) and (pointer:fine){.p:hover{background:var(--acc-d)}.s:hover{background:#e6e4df}}
+@media(prefers-reduced-motion:reduce){.btn,.fld button{transition:none}}
 </style></head><body>
 <header><a href="./"><img src="img/logo.png" alt="air2frip"></a></header>
 <main id="app"><div class="card"><p class="mute">Chargement de ta commande…</p></div></main>

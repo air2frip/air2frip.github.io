@@ -29,20 +29,19 @@ main{max-width:620px;margin:-8px auto 0;padding:0 16px 60px}
 .step h2{font-family:Fredoka,sans-serif;font-weight:500;font-size:21px;margin:0}
 .hint{color:var(--mute);font-size:13.5px;margin:2px 0 14px 40px}
 .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
-.it{position:relative;border:2px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;padding:0;cursor:pointer;text-align:left;transition:transform .15s,border-color .15s}
-.it:hover{transform:translateY(-2px)}
+.it{position:relative;border:2px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;padding:0;cursor:pointer;text-align:left;transition:transform .16s var(--ease-out),border-color .15s ease,box-shadow .15s ease}
 .it img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#eee}
 .it span{display:block;padding:7px 9px 9px;font-size:12.5px;line-height:1.3}
 .it span b{display:block;font-size:13px}
 .it[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 4px var(--acc2)}
-.it[aria-pressed="true"]::after{content:"✓";position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:700}
+.it[aria-pressed="true"]::after{content:"";position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:var(--acc) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat}
 .other{margin-top:10px;width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:15px}
 .stars{display:flex;gap:6px;justify-content:center;margin:4px 0 6px}
-.star{border:0;background:none;font-size:46px;line-height:1;cursor:pointer;color:#ddd9cf;transition:transform .15s,color .15s;padding:2px}
-.star.on{color:var(--gold)}.star:hover{transform:scale(1.15)}
+.star{border:0;background:none;font-size:46px;line-height:1;cursor:pointer;color:#ddd9cf;transition:transform .16s var(--ease-out),color .15s ease;padding:2px}
+.star.on{color:var(--gold)}
 .slabel{text-align:center;font-weight:600;min-height:22px;color:var(--acc)}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center}
-.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font-size:13.5px;cursor:pointer;transition:all .15s}
+.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font-size:13.5px;cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease,transform .16s var(--ease-out)}
 .tag[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 label.f{display:block;font-weight:600;font-size:14px;margin:12px 0 6px}
 label.f i{font-weight:400;color:var(--mute);font-style:normal}
@@ -52,14 +51,13 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:480px){.two{grid-template-columns:1fr}}
 .ok{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#2c2b33;margin-top:14px;line-height:1.45}
 .ok input{width:20px;height:20px;accent-color:var(--acc);flex:none;margin-top:1px}
-.send{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;background:var(--acc);color:#fff;border:0;border-radius:999px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 10px 26px rgba(91,80,232,.4);transition:transform .2s,background .2s}
-.send:hover{transform:translateY(-2px);background:var(--acc-d)}
+.send{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;background:var(--acc);color:#fff;border:0;border-radius:999px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 10px 26px rgba(91,80,232,.4);transition:transform .16s var(--ease-out),background .2s ease}
 .send[disabled]{opacity:.5;cursor:not-allowed;transform:none}
 .err{color:#c2453a;font-size:13.5px;text-align:center;min-height:18px;margin-top:8px}
 .hp{position:absolute;left:-9999px}
 .done{text-align:center;padding:34px 22px}
-.done .big{font-size:64px;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
-@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.done .big{font-size:64px;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 .done h2{font-family:Fredoka,sans-serif;font-weight:500;font-size:28px;margin:8px 0}
 .done p{color:#2c2b33;line-height:1.55;margin:0 0 16px}
 .btn2{display:inline-flex;gap:8px;align-items:center;text-decoration:none;font-weight:600;border-radius:999px;padding:12px 18px;margin:4px}
@@ -68,11 +66,23 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 .foot a{color:var(--acc)}
 .conf{position:fixed;inset:0;pointer-events:none;z-index:9}
 @media (prefers-reduced-motion:reduce){.glow,.done .big{animation:none}}
+
+/* Finitions design 22/11/2026 (règles de DESIGN.md : Emil Kowalski, Impeccable, Taste) */
+:root{--ease-out:cubic-bezier(.23,1,.32,1)}
+::selection{background:#dcd8ff;color:var(--ink)}
+html{caret-color:var(--acc)}
+h1,h2{text-wrap:balance}p{text-wrap:pretty}
+.it:active{transform:scale(.98)}.star:active{transform:scale(.9)}.tag:active,.btn2:active{transform:scale(.97)}.send:active{transform:scale(.98)}
+.send[disabled]:active{transform:none}
+.btn2{transition:transform .16s var(--ease-out)}
+@media(hover:hover) and (pointer:fine){.it:hover{transform:translateY(-2px)}.star:hover{transform:scale(1.1)}.send:not([disabled]):hover{transform:translateY(-2px);background:var(--acc-d)}.tag:hover{border-color:#bdb8f5}}
+@media(pointer:coarse){.tag{min-height:44px}}
+@media(prefers-reduced-motion:reduce){.it,.star,.tag,.send,.btn2{transition:none}}
 </style></head>
 <body>
 <header class="hero"><div class="glow g1"></div><div class="glow g2"></div>
   <img src="img/logo.png" alt="air2frip">
-  <h1>Alors, ta pièce ?</h1>
+  <h1>Alors, ta pièce&nbsp;?</h1>
   <p>Merci d'avoir acheté chez air2frip ! Dis-moi en 30 secondes ce que tu en penses : ça m'aide énormément à faire grandir la boutique.</p>
   <div class="wave"></div>
 </header>
@@ -80,8 +90,8 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 <main id="app">
   <form id="f" novalidate>
     <section class="card">
-      <div class="step"><b>1</b><h2>Qu'est-ce que tu as acheté ?</h2></div>
-      <p class="hint">Touche ta ou tes pièces. Tu ne la vois pas ? Écris-la juste en dessous.</p>
+      <div class="step"><b>1</b><h2>Qu'est-ce que tu as acheté&nbsp;?</h2></div>
+      <p class="hint">Touche ta ou tes pièces. Tu ne la vois pas&nbsp;? Écris-la juste en dessous.</p>
       <div class="items" id="items"></div>
       <label for="autre" class="hp">Autre pièce</label>
       <input class="other" id="autre" name="autre" placeholder="Autre pièce (ex. doudoune The North Face noire)" autocomplete="off">
