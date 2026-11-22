@@ -102,7 +102,7 @@ select{flex:none;max-width:150px;height:44px;border:1px solid var(--line);border
 .sz{position:absolute;left:10px;bottom:10px;background:#fff;color:var(--ink);font-size:13px;font-weight:700;border-radius:9px;padding:4px 9px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .heart{position:absolute;right:10px;top:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.95);cursor:pointer;display:grid;place-items:center;box-shadow:0 3px 12px rgba(0,0,0,.15);transition:transform .2s}
 .heart:hover{transform:scale(1.1)}
-.heart svg{width:19px;height:19px;fill:none;stroke:#111;stroke-width:2;transition:all .2s}
+.heart svg{width:19px;height:19px;fill:none;stroke:#111;stroke-width:2;transition:fill .2s ease,stroke .2s ease}
 .heart.on svg{fill:var(--acc);stroke:var(--acc)}
 .heart.pop{animation:pop .45s}@keyframes pop{40%{transform:scale(1.35)}}
 .dots{position:absolute;right:10px;bottom:12px;display:flex;gap:4px}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.75);box-shadow:0 1px 3px rgba(0,0,0,.3)}
@@ -138,7 +138,7 @@ select{flex:none;max-width:150px;height:44px;border:1px solid var(--line);border
 .ga{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.92);cursor:pointer;font-size:17px;box-shadow:0 3px 12px rgba(0,0,0,.18)}
 .ga.l{left:10px}.ga.r{right:10px}
 .gd{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:6px}
-.gd i{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.6);transition:all .3s;cursor:pointer}.gd i.on{width:22px;background:#fff}
+.gd i{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.6);transition:width .25s var(--ease-out),background .25s ease;cursor:pointer}.gd i.on{width:22px;background:#fff}
 .side{padding:28px 26px}
 .side .nm{font-size:25px;font-family:Fredoka,sans-serif;font-weight:500;margin-top:4px}
 .dsl{font-size:15px;color:#3a3942;line-height:1.6;margin:10px 0 0}
@@ -215,7 +215,7 @@ footer a{color:var(--acc);font-weight:600;text-decoration:none}footer img{width:
 .pi img{display:block;position:relative;z-index:1;width:118px;height:170px;object-fit:contain;object-position:50% 0;margin-top:-19px;filter:drop-shadow(0 8px 10px rgba(20,10,60,.22));transform-origin:50% 0;transition:transform .45s cubic-bezier(.2,.9,.3,1.3)}
 .pi:hover,.pi:focus-visible,.pi.on{z-index:40;margin:0 26px}.pi:hover img,.pi:focus-visible img,.pi.on img{transform:scale(1.55)}
 .pi:hover{animation:psg .9s ease-out}
-.pi .pt{position:absolute;left:50%;top:150px;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+.pi .pt{position:absolute;left:50%;top:150px;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;opacity:0;transition:opacity .2s ease,top .25s var(--ease-out);pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.08)}
 .pi:hover .pt,.pi.on .pt{opacity:1;top:262px}
 @keyframes psw{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
 @keyframes psg{0%{transform:rotate(0)}25%{transform:rotate(6deg)}50%{transform:rotate(-3.5deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
@@ -248,7 +248,7 @@ footer a{color:var(--acc);font-weight:600;text-decoration:none}footer img{width:
 .fsec{padding:16px 0 18px;border-bottom:1px solid var(--line)}.fsec:last-child{border:0}
 .fsec h4{margin:0 0 12px;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);font-weight:700}
 .fopts{display:flex;flex-wrap:wrap;gap:8px}
-.fo{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:10px 14px;font:500 14px Inter,sans-serif;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.fo{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:10px 14px;font:500 14px Inter,sans-serif;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,transform .12s var(--ease-out);-webkit-tap-highlight-color:transparent}
 .fo small{color:var(--mute);margin-left:5px;font-size:12px}
 .fo:hover{border-color:#bdb8f5}.fo.on{background:var(--ink);border-color:var(--ink);color:#fff}.fo.on small{color:#fff;opacity:.7}
 .fo:disabled{opacity:.35;cursor:default}
@@ -262,6 +262,59 @@ body.noscroll{overflow:hidden}
 .more{grid-column:1/-1;justify-self:center;margin:18px auto 6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:13px 22px;font:600 14.5px Inter,sans-serif;cursor:pointer}
 .ck{padding:10px 12px;font-size:13px;max-width:420px}.ck p{min-width:0}
 .avis{margin-top:40px}
+
+/* Finitions design 22/11/2026 : regles Emil Kowalski (animations), Impeccable (craft floor), Taste (catalogue) */
+:root{--ease-out:cubic-bezier(.23,1,.32,1);--ease-io:cubic-bezier(.77,0,.175,1);--ease-drawer:cubic-bezier(.32,.72,0,1)}
+::selection{background:#dcd8ff;color:var(--ink)}
+html{caret-color:var(--acc);scrollbar-color:#cbc8d8 transparent}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3,h4,.motto,.side .nm{text-wrap:balance}
+p{text-wrap:pretty}
+.pr,.pr.big b,.tot,.stat b,.cat small,.fo small,.fbadge,.cartb span{font-variant-numeric:tabular-nums}
+.search .sic{flex:none;width:18px;height:18px;fill:none;stroke:var(--mute);stroke-width:2;stroke-linecap:round}
+.search:focus-within .sic{stroke:var(--acc)}
+/* Entree du haut de page : une seule fois, plus courte, courbe ease-out franche */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hero img.logo,.hero h1,.hero .sub,.stats,.liv,.upd,.cta{animation-duration:.6s;animation-timing-function:var(--ease-out)}
+.hero img.logo{animation-delay:0s}.hero h1{animation-delay:.06s}.hero .sub{animation-delay:.12s}.stats{animation-delay:.16s}.liv{animation-delay:.2s}.upd{animation-delay:.24s}.cta{animation-delay:.28s}
+.cta i{animation-iteration-count:3}
+.nw{animation:none}
+/* Pas de degrade sur le texte : l'accent vient de la couleur */
+.motto em{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--acc)}
+/* Fiches : visibles tout de suite (pas d'apparition au defilement), contour en ombre douce */
+.card{opacity:1;transform:none;border:0;box-shadow:0 0 0 1px rgba(14,13,20,.07),0 1px 2px rgba(14,13,20,.05);transition:transform .25s var(--ease-out),box-shadow .25s var(--ease-out)}
+.card:hover{transform:none;box-shadow:0 0 0 1px rgba(14,13,20,.07),0 1px 2px rgba(14,13,20,.05)}
+.ph img{transition:opacity .3s ease,transform .5s var(--ease-out)}
+/* Survol seulement avec une vraie souris (pas d'effet colle au doigt sur telephone) */
+.cta:hover,.soc:hover,.wa1:hover,.how div:hover,.cartb:hover,.heart:hover,.sel:hover{transform:none}
+.moi:hover .pfi{transform:rotate(-2.5deg)}.hc:hover img,.sc:hover img{transform:none}
+@media(hover:hover) and (pointer:fine){
+ .card:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(14,13,20,.07),0 14px 30px rgba(20,10,80,.10)}
+ .card:hover .ph img.b{transform:scale(1.03)}
+ .cta:hover,.soc:hover,.wa1:hover,.sel:hover{transform:translateY(-2px)}
+ .how div:hover{transform:translateY(-2px)}
+ .cartb:hover{transform:scale(1.04)}
+ .heart:hover{transform:scale(1.08)}
+ .moi:hover .pfi{transform:rotate(0) scale(1.02)}
+ .hc:hover img,.sc:hover img{transform:scale(1.03)}
+}
+/* Retour au clic : tout ce qui se touche s'enfonce un peu */
+.cta,.soc,.wa1,.cat,.ftog,.cartb,.heart,.ck button,.news button,.fsf button,.ach,.sel,.chip,.fshx{transition-property:transform,background,border-color,color,box-shadow;transition-duration:.16s;transition-timing-function:var(--ease-out)}
+.cta:active,.soc:active,.wa1:active,.cat:active,.ftog:active,.cartb:active,.ck button:active,.news button:active,.fsf button:active,.ach:active,.sel:active,.chip:active,.fo:active,.fshx:active{transform:scale(.97)}
+.heart:active{transform:scale(.92)}
+.card:active{transform:scale(.99);transition-duration:.12s}
+.ga:active{transform:translateY(-50%) scale(.94)}
+.fab:active{transform:translateX(-50%) translateY(0) scale(.97)}
+.heart::after{content:"";position:absolute;inset:-4px;border-radius:50%}
+/* Courbes : fenetres, panneau filtres, panier */
+.box{transition:transform .3s var(--ease-out)}
+.fsb{transition:transform .38s var(--ease-drawer)}
+.fab,.toast,.ck{transition-timing-function:var(--ease-out)}
+.slides{transition:transform .35s var(--ease-io)}
+/* Respiration : plus d'air au-dessus des titres qu'en dessous */
+.port{margin-bottom:56px}
+@media(max-width:600px){.port{margin-bottom:44px}}
+@media(prefers-reduced-motion:reduce){.card,.card:hover,.card:active{transform:none}}
 </style></head><body>
 <header class="hero">
 <div class="glow g1"></div><div class="glow g2"></div>
@@ -294,7 +347,7 @@ body.noscroll{overflow:hidden}
 <button class="sel" id="selch" hidden style="display:none!important"><span class="selk">✨ Nouvelle sélection</span><b id="selb"></b><span class="selt" id="selt"></span><span class="sela">Voir la sélection →</span></button>
 <h3 class="t" id="pieces">Toutes les pièces</h3>
 <div class="filters" id="filters">
-<div class="top"><label class="search"><span>🔍</span><input id="q" type="search" placeholder="Chercher : doudoune, Lacoste, rouge, col zippé…" autocomplete="off"></label>
+<div class="top"><label class="search"><svg class="sic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><input id="q" type="search" placeholder="Chercher : doudoune, Lacoste, rouge, col zippé…" autocomplete="off"></label>
 <span hidden><button class="cartb" id="cartb">🛍️<span id="cartn">0</span></button></span><button class="ftog" id="ftog" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Filtres</span><span class="fbadge" id="fbadge" hidden>0</span></button></div>
 <div class="cats" id="fk" role="tablist" aria-label="Catégories"></div>
 <div class="act" id="fact"></div>
@@ -401,7 +454,7 @@ function cats(){const el=$("fk");const av=D.filter(avail);const ks=uniq(av.map(x
  const hasNew=av.some(isNew);if(st.k=="__new"&&!hasNew)st.k="Tout";
   el.innerHTML=["Tout",...(hasNew?["__new"]:[]),...ks].map(k=>`<button type="button" role="tab" class="cat${k=="__new"?" nw2":""}${st.k==k?" on":""}${st.k!=k&&!n(k)?" z":""}" aria-selected="${st.k==k}" data-k="${esc(k)}"><u>${kic(k)}</u><span>${esc(k=="Tout"?"Tout voir":k=="__new"?"Nouveautés":(KSH[k]||k))}<small>${n(k)}</small></span></button>`).join("");
  el.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{st.k=b.dataset.k;render(true)});
- const on=el.querySelector(".cat.on");if(on&&on.scrollIntoViewIfNeeded)on.scrollIntoViewIfNeeded()}
+ const on=el.querySelector(".cat.on");if(on){const r=on.getBoundingClientRect(),c=el.getBoundingClientRect();if(r.left<c.left||r.right>c.right)el.scrollLeft+=r.left-c.left-12}}
 function actChips(){const a=[];const add=(l,f)=>a.push([l,f]);
  if(st.g!="Tout")add(st.g,()=>st.g="Tout");
  [...st.S].sort((x,y)=>sIdx(x)-sIdx(y)).forEach(s=>add("Taille "+sLab(s),()=>st.S.delete(s)));
