@@ -5,6 +5,11 @@
 //                           Balance transactions (lecture), Transfers (écriture)
 //   STRIPE_WEBHOOK_SECRET   « Signing secret » du webhook (whsec_…)
 //   MALO_ACCOUNT            compte Stripe connecté de Malo (acct_…)
+//   SENDCLOUD_ROMAIN_KEY / SENDCLOUD_ROMAIN_SECRET / SENDCLOUD_ROMAIN_INTEGRATION   clés API Sendcloud de Romain + id de l'intégration
+//   SENDCLOUD_MALO_KEY   / SENDCLOUD_MALO_SECRET   / SENDCLOUD_MALO_INTEGRATION     idem pour le compte Sendcloud de Malo
+//   VIZ2FRIP_MIXTE          qui expédie un panier mélangé : "romain" (par défaut) ou "malo"
+// Après chaque paiement, la commande est envoyée dans le Sendcloud de celui qui expédie (pas pour un retrait en main propre).
+// Les étiquettes ne sont jamais créées ici : chacun les fait dans Sendcloud.
 // Livraison (payée par l'acheteur) : elle revient à celui qui paie l'envoi.
 //   panier 100 % Malo → toute la livraison à Malo ; 100 % Romain → à Romain ; panier mélangé → moitié chacun.
 // Frais Stripe du paiement : partagés au prorata de ce que chacun reçoit (pièces + livraison).
@@ -51,27 +56,79 @@ module.exports = async (req, res) => {
   const m = s.metadata || {};
   if (m.source !== "viz2frip" || s.payment_status !== "paid") return send(res, 200, "pas un paiement viz2frip");
   const partMalo = Number(m.part_malo || 0), partRomain = Number(m.part_romain || 0);
-  if (!(partMalo > 0)) return send(res, 200, "aucune pièce de Malo");
-  if (!process.env.MALO_ACCOUNT) return send(res, 500, "MALO_ACCOUNT manquant");
-  try {
-    const pi = await stripe(`payment_intents/${s.payment_intent}?expand[]=latest_charge.balance_transaction`, "GET");
-    const ch = pi.latest_charge;
-    const fee = (ch && ch.balance_transaction && ch.balance_transaction.fee) || 0;
-    const ship = (s.shipping_cost && s.shipping_cost.amount_total) || (s.total_details && s.total_details.amount_shipping) || 0;
-    const shipMalo = partRomain > 0 ? Math.floor(ship / 2) : ship;
-    const total = partMalo + partRomain + ship;
-    const feeMalo = Math.round(fee * (partMalo + shipMalo) / total);
-    const amount = partMalo + shipMalo - feeMalo;
-    const t = await stripe("transfers", "POST", {
-      amount, currency: "eur", destination: process.env.MALO_ACCOUNT,
-      source_transaction: ch.id, transfer_group: m.transfer_group || pi.transfer_group,
-      description: "Viz2frip — part de Malo " + (m.skus || ""),
-      metadata: { session: s.id, skus: m.skus || "", part_malo: partMalo, livraison_malo: shipMalo, frais_malo: feeMalo },
-    }, "viz2frip-transfer-" + s.id);
-    return send(res, 200, "part de Malo virée : " + t.id);
-  } catch (e) {
-    console.error(e);
-    return send(res, 500, String(e.message || e).slice(0, 200)); // Stripe réessaiera plus tard
+  const errors = [], done = [];
+  if (partMalo > 0) {
+    try { done.push("part de Malo virée : " + await transferMalo(s, m, partMalo, partRomain)); }
+    catch (e) { console.error(e); errors.push("virement Malo : " + (e.message || e)); }
   }
+  try { done.push(await toSendcloud(s, m, partMalo, partRomain)); }
+  catch (e) { console.error(e); errors.push("Sendcloud : " + (e.message || e)); }
+  // En cas d'erreur, Stripe renvoie l'événement plus tard : virement et commande Sendcloud ne se créent pas deux fois.
+  return send(res, errors.length ? 500 : 200, [...done, ...errors].join(" | ").slice(0, 300));
 };
+
+async function transferMalo(s, m, partMalo, partRomain) {
+  if (!process.env.MALO_ACCOUNT) throw new Error("MALO_ACCOUNT manquant");
+  const pi = await stripe(`payment_intents/${s.payment_intent}?expand[]=latest_charge.balance_transaction`, "GET");
+  const ch = pi.latest_charge;
+  const fee = (ch && ch.balance_transaction && ch.balance_transaction.fee) || 0;
+  const ship = shipping(s);
+  const shipMalo = partRomain > 0 ? Math.floor(ship / 2) : ship;
+  const total = partMalo + partRomain + ship;
+  const feeMalo = Math.round(fee * (partMalo + shipMalo) / total);
+  const amount = partMalo + shipMalo - feeMalo;
+  const t = await stripe("transfers", "POST", {
+    amount, currency: "eur", destination: process.env.MALO_ACCOUNT,
+    source_transaction: ch.id, transfer_group: m.transfer_group || pi.transfer_group,
+    description: "Viz2frip — part de Malo " + (m.skus || ""),
+    metadata: { session: s.id, skus: m.skus || "", part_malo: partMalo, livraison_malo: shipMalo, frais_malo: feeMalo },
+  }, "viz2frip-transfer-" + s.id);
+  return t.id;
+}
+function shipping(s) {
+  return (s.shipping_cost && s.shipping_cost.amount_total) || (s.total_details && s.total_details.amount_shipping) || 0;
+}
+
+async function toSendcloud(s, m, partMalo, partRomain) {
+  const rateId = s.shipping_cost && s.shipping_cost.shipping_rate;
+  const rate = rateId ? await stripe("shipping_rates/" + rateId, "GET") : null;
+  const carrier = (rate && rate.metadata && rate.metadata.carrier) || "";
+  if (!carrier || carrier.startsWith("retrait")) return "retrait en main propre : pas de Sendcloud";
+  const who = partMalo > 0 && partRomain > 0 ? (process.env.VIZ2FRIP_MIXTE === "malo" ? "malo" : "romain") : (partMalo > 0 ? "malo" : "romain");
+  const W = who.toUpperCase();
+  const key = process.env[`SENDCLOUD_${W}_KEY`], secret = process.env[`SENDCLOUD_${W}_SECRET`], integ = Number(process.env[`SENDCLOUD_${W}_INTEGRATION`]);
+  if (!key || !secret || !integ) throw new Error(`clés Sendcloud de ${who} manquantes`);
+  const items = await stripe(`checkout/sessions/${s.id}/line_items?limit=50&expand[]=data.price.product`, "GET");
+  const ship = (s.collected_information && s.collected_information.shipping_details) || s.shipping_details || {};
+  const a = ship.address || {}, c = s.customer_details || {};
+  const eur = cents => ({ value: Math.round(cents) / 100, currency: "EUR" });
+  const order = [{
+    order_id: s.id, order_number: "VIZ-" + s.id.slice(-8).toUpperCase(),
+    order_details: {
+      integration: { id: integ },
+      status: { code: "paid", message: "Payé en ligne (Stripe)" },
+      order_created_at: new Date((s.created || Date.now() / 1000) * 1000).toISOString(),
+      notes: `Viz2frip — ${rate.display_name}. Pièces : ${m.skus || ""}` + (partMalo > 0 && partRomain > 0 ? " (panier mélangé Malo + Romain)" : ""),
+      tags: ["viz2frip", carrier],
+      order_items: items.data.map(li => {
+        const pr = li.price && li.price.product || {}, md = pr.metadata || {};
+        return { name: pr.name || li.description, quantity: li.quantity || 1, sku: md.sku, product_id: md.id,
+          unit_price: eur(li.price.unit_amount), total_price: eur(li.amount_total), properties: { vendeur: md.seller || "" } };
+      }),
+    },
+    payment_details: { status: { code: "paid" }, total_price: eur(s.amount_total), subtotal_price: eur(s.amount_subtotal),
+      estimated_shipping_price: eur(shipping(s)) },
+    customer_details: { name: ship.name || c.name || "Client", email: c.email, phone_number: c.phone },
+    shipping_address: { name: ship.name || c.name || "Client", address_line_1: a.line1, address_line_2: a.line2 || undefined,
+      postal_code: a.postal_code, city: a.city, country_code: a.country || "BE", email: c.email, phone_number: c.phone },
+    shipping_details: { delivery_indicator: rate.display_name, is_local_pickup: false },
+  }];
+  const r = await fetch("https://panel.sendcloud.sc/api/v3/orders", {
+    method: "POST",
+    headers: { Authorization: "Basic " + Buffer.from(key + ":" + secret).toString("base64"), "Content-Type": "application/json" },
+    body: JSON.stringify(order),
+  });
+  if (!r.ok) throw new Error("Sendcloud " + r.status + " " + (await r.text()).slice(0, 150));
+  return `commande envoyée dans le Sendcloud de ${who}`;
+}
 module.exports.config = { api: { bodyParser: false } };
