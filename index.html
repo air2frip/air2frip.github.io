@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+/* QR code des affiches (https://air2frip.github.io) → nouveau site commun viz2frip.be, dès qu'il est en ligne.
+   Seulement l'adresse nue (sans ?… ni #…) : les retours de paiement et les liens de commande restent ici.
+   ?catalogue dans l'adresse = garder l'ancien catalogue. Si viz2frip.be ne répond pas, le catalogue s'affiche. */
+(function(){
+  if (location.search || location.hash) return;
+  var NEW = "https://viz2frip.be/", d = document.documentElement, done = false;
+  d.style.visibility = "hidden";
+  function show(){ if (!done) { done = true; d.style.visibility = ""; } }
+  var t = new Image();
+  t.onload = function(){ if (!done) { done = true; location.replace(NEW); } };
+  t.onerror = show;
+  setTimeout(show, 1500);
+  t.src = NEW + "img/logo.svg?t=" + Date.now();
+})();
+</script>
 <title>air2frip — Catalogue</title>
 <meta name="description" content="Des pièces vintage de marque (The North Face, Ralph Lauren, Lacoste…) 20 % moins cher que sur Vinted. Retrait gratuit à Seraing ou envoi Mondial Relay / bpost.">
 <meta property="og:type" content="website"><meta property="og:site_name" content="air2frip"><meta property="og:locale" content="fr_BE">
