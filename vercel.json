@@ -1,1 +1,1 @@
-{ "functions": { "api/checkout.js": { "maxDuration": 20 } } }
+{ "functions": { "api/checkout.js": { "maxDuration": 20 }, "api/viz2frip.js": { "maxDuration": 20 }, "api/viz2frip-webhook.js": { "maxDuration": 20 } } }
