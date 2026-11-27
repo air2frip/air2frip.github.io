@@ -8,6 +8,9 @@
 //   SENDCLOUD_ROMAIN_KEY / SENDCLOUD_ROMAIN_SECRET / SENDCLOUD_ROMAIN_INTEGRATION   clés API Sendcloud de Romain + id de l'intégration
 //   SENDCLOUD_MALO_KEY   / SENDCLOUD_MALO_SECRET   / SENDCLOUD_MALO_INTEGRATION     idem pour le compte Sendcloud de Malo
 //   VIZ2FRIP_MIXTE          qui expédie un panier mélangé : "romain" (par défaut) ou "malo"
+//   VIZ2FRIP_AVIS_URL       (facultatif) adresse du script Google des commandes ; par défaut celle du catalogue air2frip.
+// Après chaque paiement, un avis « VENTE VIZ2FRIP » part dans le Google Sheet de Romain (onglet « Messages ») et dans
+// son Gmail (« ✉️ air2frip · Question · … · Viz2frip ») : c'est là que les agents (passage, clôture) voient les ventes du site.
 // Après chaque paiement, la commande est envoyée dans le Sendcloud de celui qui expédie (pas pour un retrait en main propre).
 // Les étiquettes ne sont jamais créées ici : chacun les fait dans Sendcloud.
 // Livraison (payée par l'acheteur) : elle revient à celui qui paie l'envoi.
@@ -63,6 +66,8 @@ module.exports = async (req, res) => {
   }
   try { done.push(await toSendcloud(s, m, partMalo, partRomain)); }
   catch (e) { console.error(e); errors.push("Sendcloud : " + (e.message || e)); }
+  try { done.push(await avisVente(s, m, partMalo, partRomain, errors)); }
+  catch (e) { console.error(e); errors.push("avis Sheet : " + (e.message || e)); }
   // En cas d'erreur, Stripe renvoie l'événement plus tard : virement et commande Sendcloud ne se créent pas deux fois.
   return send(res, errors.length ? 500 : 200, [...done, ...errors].join(" | ").slice(0, 300));
 };
@@ -87,6 +92,35 @@ async function transferMalo(s, m, partMalo, partRomain) {
 }
 function shipping(s) {
   return (s.shipping_cost && s.shipping_cost.amount_total) || (s.total_details && s.total_details.amount_shipping) || 0;
+}
+
+const AVIS_URL = "https://script.google.com/macros/s/AKfycbzcJdSDdG1Qf8QK19giQixcxaxDmKjsuGVK7h2XSUEEQU-X0XxMXXuuKZAI0vsKUpB3NA/exec";
+async function avisVente(s, m, partMalo, partRomain, errors) {
+  const eur = c => (Math.round(c) / 100).toFixed(2).replace(".", ",") + " €";
+  const ship = (s.collected_information && s.collected_information.shipping_details) || s.shipping_details || {};
+  const a = ship.address || {}, c = s.customer_details || {};
+  const rateId = s.shipping_cost && s.shipping_cost.shipping_rate;
+  let livraison = "aucune";
+  if (rateId) { try { const r = await stripe("shipping_rates/" + rateId, "GET"); livraison = r.display_name + " " + eur(shipping(s)); } catch (e) { livraison = eur(shipping(s)); } }
+  const message = [
+    "VENTE VIZ2FRIP (payée en ligne)",
+    "Session : " + s.id,
+    "Pièces : " + (m.skus || "") + " (id " + (m.ids || "") + ")",
+    "Part Romain : " + eur(partRomain) + " · Part Malo : " + eur(partMalo),
+    "Livraison : " + livraison,
+    "Total payé : " + eur(s.amount_total || 0),
+    "Client : " + (ship.name || c.name || "") + " · " + (c.email || "") + " · " + (c.phone || ""),
+    "Adresse : " + [a.line1, a.line2, a.postal_code, a.city, a.country].filter(Boolean).join(", "),
+    errors.length ? "⚠️ À vérifier : " + errors.join(" | ") : "Virement Malo / Sendcloud : OK",
+  ].join("\n");
+  const r = await fetch(process.env.VIZ2FRIP_AVIS_URL || AVIS_URL, {
+    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ form: "question", prenom: "Viz2frip", email: c.email || "romain.onkelinx05@gmail.com",
+      ref: (m.skus || "").slice(0, 200), piece: "Vente en ligne " + s.id, message }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!j.ok) throw new Error("script Google : " + (j.error || r.status));
+  return "avis de vente envoyé au Sheet";
 }
 
 async function toSendcloud(s, m, partMalo, partRomain) {
