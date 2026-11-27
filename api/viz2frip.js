@@ -7,11 +7,18 @@
 const SITE = process.env.VIZ2FRIP_SITE || "https://viz2frip.be";
 const PRODUCTS = SITE + "/products.js";
 const AIR2FRIP_DATA = "https://raw.githubusercontent.com/air2frip/air2frip.github.io/main/data.json";
+// Livraison payée par l'acheteur (Belgique). Prix = tarif Sendcloud d'un colis de 2 kg max, arrondi (27/11/2026).
+const rate = (name, cents, carrier, min, max) => ({ shipping_rate_data: {
+  display_name: name, type: "fixed_amount", fixed_amount: { amount: cents, currency: "eur" },
+  metadata: { carrier },
+  delivery_estimate: min ? { minimum: { unit: "business_day", value: min }, maximum: { unit: "business_day", value: max } } : undefined,
+} });
 const SHIPPING = [
-  { shipping_rate_data: { display_name: "Retrait gratuit à Liège", type: "fixed_amount", fixed_amount: { amount: 0, currency: "eur" } } },
-  { shipping_rate: "shr_1Uc5SqQienttU2P8E1464e0c" }, // Retrait gratuit à Seraing
-  { shipping_rate: "shr_1Uc5QUQienttU2P8JShhN1Sj" }, // Mondial Relay point relais
-  { shipping_rate: "shr_1Uc5RSQienttU2P8k8gpAqLR" }, // bpost domicile
+  rate("Mondial Relay – point relais", 450, "mondial_relay", 3, 5),
+  rate("DPD – point relais", 690, "dpd", 2, 4),
+  rate("bpost – à domicile", 750, "bpost", 1, 3),
+  rate("Retrait gratuit à Liège", 0, "retrait_liege"),
+  rate("Retrait gratuit à Seraing", 0, "retrait_seraing"),
 ];
 
 function form(obj, prefix, out = []) {
@@ -84,13 +91,13 @@ module.exports = async (req, res) => {
         name: `${p.brand} – ${p.category} · ${p.size}`.slice(0, 120),
         description: `Seconde main, ${(p.condition || "").toLowerCase()} · réf. ${p.sku}`,
         images: p.cover ? [SITE + "/" + p.cover] : undefined, metadata: { id: String(p.id), sku: p.sku, seller: p.seller } } } })),
-      shipping_address_collection: { allowed_countries: ["BE", "FR", "NL", "LU"] },
+      shipping_address_collection: { allowed_countries: ["BE"] },
       shipping_options: SHIPPING,
       phone_number_collection: { enabled: "true" },
       metadata: meta,
       payment_intent_data: { description: "Viz2frip " + skus.slice(0, 200), transfer_group: group, metadata: meta },
       custom_text: {
-        shipping_address: { message: "Retrait gratuit à Liège ou à Seraing : indique simplement ton adresse, on te contacte pour fixer le rendez-vous. Mondial Relay : on choisit le point relais le plus proche de ton adresse." },
+        shipping_address: { message: "Mondial Relay et DPD : on choisit le point relais le plus proche de ton adresse. Retrait gratuit à Liège ou à Seraing : indique simplement ton adresse, on te contacte pour fixer le rendez-vous." },
         submit: { message: "Pièces uniques : dès ton paiement, elles sont réservées pour toi. On te contacte dans les 24 h." },
       },
       expires_at: Math.floor(Date.now() / 1000) + 31 * 60,

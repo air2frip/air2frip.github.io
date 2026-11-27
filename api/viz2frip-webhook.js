@@ -5,8 +5,9 @@
 //                           Balance transactions (lecture), Transfers (écriture)
 //   STRIPE_WEBHOOK_SECRET   « Signing secret » du webhook (whsec_…)
 //   MALO_ACCOUNT            compte Stripe connecté de Malo (acct_…)
-// Règle des frais : les frais Stripe du paiement sont partagés au prorata des pièces de chacun ;
-// la livraison payée par le client reste à Romain (c'est lui qui achète les bordereaux Sendcloud).
+// Livraison (payée par l'acheteur) : elle revient à celui qui paie l'envoi.
+//   panier 100 % Malo → toute la livraison à Malo ; 100 % Romain → à Romain ; panier mélangé → moitié chacun.
+// Frais Stripe du paiement : partagés au prorata de ce que chacun reçoit (pièces + livraison).
 const crypto = require("crypto");
 
 function form(obj, prefix, out = []) {
@@ -56,13 +57,16 @@ module.exports = async (req, res) => {
     const pi = await stripe(`payment_intents/${s.payment_intent}?expand[]=latest_charge.balance_transaction`, "GET");
     const ch = pi.latest_charge;
     const fee = (ch && ch.balance_transaction && ch.balance_transaction.fee) || 0;
-    const feeMalo = Math.round(fee * partMalo / (partMalo + partRomain));
-    const amount = partMalo - feeMalo;
+    const ship = (s.shipping_cost && s.shipping_cost.amount_total) || (s.total_details && s.total_details.amount_shipping) || 0;
+    const shipMalo = partRomain > 0 ? Math.floor(ship / 2) : ship;
+    const total = partMalo + partRomain + ship;
+    const feeMalo = Math.round(fee * (partMalo + shipMalo) / total);
+    const amount = partMalo + shipMalo - feeMalo;
     const t = await stripe("transfers", "POST", {
       amount, currency: "eur", destination: process.env.MALO_ACCOUNT,
       source_transaction: ch.id, transfer_group: m.transfer_group || pi.transfer_group,
       description: "Viz2frip — part de Malo " + (m.skus || ""),
-      metadata: { session: s.id, skus: m.skus || "", part_malo: partMalo, frais_malo: feeMalo },
+      metadata: { session: s.id, skus: m.skus || "", part_malo: partMalo, livraison_malo: shipMalo, frais_malo: feeMalo },
     }, "viz2frip-transfer-" + s.id);
     return send(res, 200, "part de Malo virée : " + t.id);
   } catch (e) {
