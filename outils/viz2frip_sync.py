@@ -10,6 +10,7 @@ Règles (décisions de Romain, 27/11/2026) :
 - Pièce vendue au catalogue (st « vendu ») ou retirée du catalogue → "available": false sur Viz2frip (jamais supprimée).
 - Une pièce "available": false ne repasse JAMAIS disponible.
 - Prix (px) ou lien de paiement (pay) changés au catalogue → mis à jour sur Viz2frip.
+- Photos complétées au catalogue (plus de photos dans « pa » que sur Viz2frip) → couverture et photos empilées refaites.
 - Pièces de Malo (seller "malo") : JAMAIS modifiées, sauf --vendus (pièce payée en ligne sur Viz2frip) → "available": false.
 - Garde-fous : data.json illisible ou trop court, ou plus de 15 pièces à retirer d'un coup → ARRÊT, rien n'est écrit (sauf --force).
 Sortie : un résumé JSON sur la dernière ligne ({"ajoutees": [...], "vendues": [...], ...}).
@@ -45,13 +46,14 @@ def visible(x, now):
     return now >= t.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Brussels"))
 
 
-def make_images(a2f, viz, x, rid):
+def make_images(a2f, viz, x, rid, cover=True):
     photos = [p for p in (x.get("pa") or x.get("p") or []) if os.path.exists(os.path.join(a2f, p))]
     if not photos:
         raise RuntimeError(f"{x['r']} : aucune photo trouvée dans le catalogue")
     # Couverture : 1re photo, JPEG
-    cov = Image.open(os.path.join(a2f, photos[0])).convert("RGB")
-    cov.save(os.path.join(viz, "img", rid + ".jpg"), "JPEG", quality=86, optimize=True)
+    if cover or not os.path.exists(os.path.join(viz, "img", rid + ".jpg")):
+        cov = Image.open(os.path.join(a2f, photos[0])).convert("RGB")
+        cov.save(os.path.join(viz, "img", rid + ".jpg"), "JPEG", quality=86, optimize=True)
     # Pack : toutes les photos empilées, 600 px de large
     ims, heights = [], []
     for p in photos:
@@ -97,7 +99,7 @@ def main():
     A = {x["r"]: x for x in items if x.get("r")}
     header, P = load_products(os.path.join(viz, "products.js"))
     byid = {p["id"]: p for p in P}
-    rep = {"ajoutees": [], "vendues": [], "prix": [], "liens": [], "vendues_site": [], "anomalies": [], "arret": None}
+    rep = {"ajoutees": [], "vendues": [], "prix": [], "liens": [], "photos": [], "vendues_site": [], "anomalies": [], "arret": None}
 
     # 1) Ventes payées sur Viz2frip (pièces de Romain ou de Malo)
     for v in vendus:
@@ -123,6 +125,15 @@ def main():
             rep["prix"].append(f"{p['id']} {p['price']} → {float(x['px'])}"); p["price"] = float(x["px"])
         if (x.get("pay") or "") and x.get("pay") != p.get("stripe"):
             rep["liens"].append(p["id"]); p["stripe"] = x["pay"]
+        # Photos complétées au catalogue après coup (champ « pa » plus long) → pack refait
+        nb = len([q for q in (x.get("pa") or []) if os.path.exists(os.path.join(a2f, q))])
+        if nb > len(p.get("packH") or []):
+            try:
+                heights = [0] * nb if dry else make_images(a2f, viz, x, p["id"], cover=False)
+                p.update({"pack": f"img/packs/{p['id']}.webp", "packX": 0, "packW": 600, "packH": heights})
+                rep["photos"].append(f"{p['id']} {nb} photos")
+            except Exception as e:
+                rep["anomalies"].append(str(e))
     if len(retraits) > MAX_RETRAITS and not force:
         rep["arret"] = f"{len(retraits)} pièces à retirer d'un coup (> {MAX_RETRAITS}) : vérifie data.json ; rien n'est modifié"
         print(json.dumps(rep, ensure_ascii=False)); sys.exit(2)
@@ -148,7 +159,7 @@ def main():
     # Les plus récentes en tête du site (la plus grande référence d'abord)
     P = list(reversed(neufs)) + P
 
-    changed = any(rep[k] for k in ("ajoutees", "vendues", "prix", "liens", "vendues_site"))
+    changed = any(rep[k] for k in ("ajoutees", "vendues", "prix", "liens", "photos", "vendues_site"))
     if changed and not dry:
         dump_products(os.path.join(viz, "products.js"), header, P)
     rep["ecrit"] = bool(changed and not dry)
