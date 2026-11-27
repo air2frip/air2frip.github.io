@@ -2,11 +2,10 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>
-/* QR code des affiches (https://air2frip.github.io) → nouveau site commun viz2frip.be, dès qu'il est en ligne.
-   Seulement l'adresse nue (sans ?… ni #…) : les retours de paiement et les liens de commande restent ici.
-   ?catalogue dans l'adresse = garder l'ancien catalogue. Si viz2frip.be ne répond pas, le catalogue s'affiche. */
+/* Décision de Romain (27/11/2026) : dès que viz2frip.be est en ligne, le catalogue n'est plus accessible du tout ;
+   toute visite (QR code des affiches compris) part sur viz2frip.be. Tant que viz2frip.be ne répond pas, le catalogue s'affiche.
+   Une copie du catalogue est gardée dans les Documents de Romain. */
 (function(){
-  if (location.search || location.hash) return;
   var NEW = "https://viz2frip.be/", d = document.documentElement, done = false;
   d.style.visibility = "hidden";
   function show(){ if (!done) { done = true; d.style.visibility = ""; } }
