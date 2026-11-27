@@ -2,6 +2,7 @@
 // GET /api/viz2frip?ids=10890799221,RA155  →  page de paiement Stripe avec toutes les pièces (Malo et Romain mélangés).
 // Un seul paiement pour le client ; la part de chacun est notée dans le paiement (part_malo / part_romain, en centimes).
 // La part de Malo lui est ensuite virée automatiquement par api/viz2frip-webhook.js (Stripe Connect).
+// Tant que le compte de Malo (MALO_ACCOUNT) ne peut pas recevoir de virements, ses pièces ne se paient pas en ligne.
 // La clé secrète Stripe est dans la variable d'environnement STRIPE_KEY (jamais dans le code).
 const SITE = process.env.VIZ2FRIP_SITE || "https://viz2frip.be";
 const PRODUCTS = SITE + "/products.js";
@@ -67,6 +68,13 @@ module.exports = async (req, res) => {
     const cents = items.map(p => Math.round(p.price * 100));
     const part = { malo: 0, romain: 0 };
     items.forEach((p, i) => { part[p.seller] += cents[i]; });
+    // Pièces de Malo : paiement en ligne seulement si son compte Stripe peut recevoir les virements.
+    // Sinon l'argent resterait chez Romain, qui devrait le reverser à la main : on refuse plutôt.
+    if (part.malo > 0) {
+      if (!process.env.MALO_ACCOUNT) throw new Error("compte Stripe de Malo pas encore relié");
+      const acc = await stripe("accounts/" + encodeURIComponent(process.env.MALO_ACCOUNT), "GET");
+      if (!acc.capabilities || acc.capabilities.transfers !== "active") throw new Error("compte Stripe de Malo pas encore activé");
+    }
     const list = items.map(p => p.id).join(","), skus = items.map(p => p.sku).join(",");
     const group = "viz2frip-" + Date.now().toString(36);
     const meta = { source: "viz2frip", ids: list.slice(0, 480), skus: skus.slice(0, 480), part_malo: part.malo, part_romain: part.romain, transfer_group: group };
